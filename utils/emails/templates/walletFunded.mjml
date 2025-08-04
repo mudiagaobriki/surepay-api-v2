@@ -1,0 +1,212 @@
+<mjml>
+  <mj-head>
+    <mj-title>Wallet Funded Successfully - Surepay</mj-title>
+    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></mj-font>
+    <mj-attributes>
+      <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#374151" line-height="26px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+    </mj-attributes>
+    <mj-style>
+      .amount-text { color: #059669 !important; font-weight: 700 !important; font-size: 28px !important; }
+      .table-header { color: #6B7280 !important; font-weight: 500 !important; }
+      .table-value { color: #111827 !important; font-weight: 500 !important; }
+      .success-icon { font-size: 48px !important; line-height: 1 !important; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#F9FAFB">
+    <!-- Header with Surepay Logo Only -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column>
+        <mj-image width="180" src="{{appLogo}}" alt="Hovapay" align="center"></mj-image>
+      </mj-column>
+    </mj-section>
+
+    <!-- Success Hero Section -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-section background-color="#ECFDF5" border-radius="16px" padding="40px 24px">
+          <mj-column>
+            <mj-text align="center" css-class="success-icon" color="#059669" padding="0 0 16px 0">
+              ✓
+            </mj-text>
+            <mj-text align="center" font-size="32px" font-weight="700" color="#059669" padding="0 0 8px 0" line-height="40px">
+              Wallet Funded Successfully
+            </mj-text>
+            <mj-text align="center" css-class="amount-text" padding="8px 0 0 0">
+              ₦{{amount}}
+            </mj-text>
+            <mj-text align="center" font-size="16px" color="#6B7280" padding="8px 0 0 0">
+              has been added to your wallet
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content Card -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-section background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="16px" padding="32px 28px">
+          <mj-column>
+            <!-- Greeting -->
+            <mj-text font-size="20px" font-weight="600" color="#111827" padding="0 0 16px 0">
+              Hi {{firstName}},
+            </mj-text>
+
+            <!-- Success Message -->
+            <mj-text font-size="16px" color="#4B5563" padding="0 0 24px 0" line-height="26px">
+              Great news! Your wallet has been successfully funded. The money is now available for use on all Hovapay services.
+            </mj-text>
+
+            <!-- Transaction Details -->
+            <mj-section background-color="#F9FAFB" border-radius="12px" padding="24px 20px">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 16px 0">
+                  Transaction Details
+                </mj-text>
+
+                <!-- Amount -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Amount</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="18px" font-weight="700" color="#059669" padding="0">₦{{amount}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Payment Method -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Payment Method</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">{{gateway}} {{#if channel}}({{channel}}){{/if}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Transaction Reference -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Reference</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="12px" css-class="table-value" padding="0" font-family="monospace">{{reference}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Date & Time -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Date & Time</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">{{transactionDate}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Current Wallet Balance -->
+                <mj-section padding="12px 0 0 0" border-top="1px solid #E5E7EB">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Current Balance</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="16px" font-weight="600" color="#1F2937" padding="0">₦{{walletBalance}}</mj-text>
+                  </mj-column>
+                </mj-section>
+              </mj-column>
+            </mj-section>
+
+            <!-- What's Next Section -->
+            <mj-section background-color="#EFF6FF" border-left="4px solid #3B82F6" border-radius="8px" padding="16px 20px" margin="24px 0 0 0">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#1E40AF" padding="0 0 8px 0">
+                  💡 What's Next?
+                </mj-text>
+                <mj-text font-size="14px" color="#1E3A8A" padding="0" line-height="22px">
+                  Your wallet is now ready! You can use your balance to:
+                  <br>• Pay for airtime and data
+                  <br>• Settle electricity and cable TV bills
+                  <br>• Purchase education pins
+                  <br>• Send money to other users
+                </mj-text>
+              </mj-column>
+            </mj-section>
+
+            <!-- Action Buttons -->
+            <mj-section padding="32px 0 0 0">
+              <mj-column width="50%">
+                <mj-button
+                  background-color="#059669"
+                  color="#FFFFFF"
+                  font-weight="600"
+                  border-radius="8px"
+                  href="{{dashboardUrl}}"
+                  inner-padding="14px 20px"
+                  font-size="14px"
+                  width="100%">
+                  View Dashboard
+                </mj-button>
+              </mj-column>
+              <mj-column width="50%">
+                <mj-button
+                  background-color="#FFFFFF"
+                  color="#374151"
+                  font-weight="600"
+                  border-radius="8px"
+                  border="1px solid #D1D5DB"
+                  href="{{transactionHistoryUrl}}"
+                  inner-padding="14px 20px"
+                  font-size="14px"
+                  width="100%">
+                  View History
+                </mj-button>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Security Notice -->
+    <mj-section background-color="#FEF3C7" padding="24px">
+      <mj-column>
+        <mj-text align="center" font-size="14px" color="#92400E" padding="0 0 8px 0" font-weight="600">
+          🔒 Security Notice
+        </mj-text>
+        <mj-text align="center" font-size="13px" color="#B45309" padding="0" line-height="20px">
+          We never ask for your login details via email or phone. Keep your account secure and report any suspicious activity immediately.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Support Section -->
+    <mj-section background-color="#F9FAFB" padding="24px">
+      <mj-column>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding="0">
+          Need assistance? We're here to help 24/7
+        </mj-text>
+        <mj-text align="center" font-size="14px" color="#374151" font-weight="500" padding="8px 0 0 0">
+          📧 <a href="mailto:support@hovapay.com" style="color: #059669; text-decoration: none;">support@hovapay.com</a>
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          📞 <a href="tel:+2341234567890" style="color: #059669; text-decoration: none;">+234 123 456 7890</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#111827" padding="32px 24px">
+      <mj-column>
+        <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px">
+          This is an automated notification. Please do not reply to this email.
+          <br><br>
+          © 2025 Hovapay. All rights reserved.
+          <br>
+          Secure • Fast • Reliable
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

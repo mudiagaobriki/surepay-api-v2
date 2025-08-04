@@ -1,0 +1,171 @@
+<mjml>
+    <mj-head>
+        <mj-title>Transaction Notification</mj-title>
+        <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500"></mj-font>
+        <mj-attributes>
+            <mj-all font-family="Montserrat, Helvetica, Arial, sans-serif"></mj-all>
+            <mj-text font-weight="400" font-size="16px" color="#000000" line-height="24px"></mj-text>
+            <mj-section padding="0px"></mj-section>
+        </mj-attributes>
+    </mj-head>
+    <mj-body background-color="#F2F2F2">
+        <!-- Header Section with App Logo -->
+        <mj-section padding="0 20px 30px 20px" background-color="#FFFFFF">
+            <mj-column>
+                <mj-image width="350" src="{{appLogo}}" alt="{{appName}} Logo"></mj-image>
+            </mj-column>
+        </mj-section>
+
+        <!-- Transaction Status Section - Fixed Single Conditional -->
+        <mj-section background-color="#FFFFFF">
+            <mj-column>
+                <mj-text align="center" font-weight="500" font-size="32px" line-height="40px" color="{{#if isSuccess}}#28a745{{else}}#dc3545{{/if}}">
+                    {{#if isSuccess}}Transaction Successful{{else}}Transaction Failed{{/if}}
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <!-- Service Image Section -->
+        {{#if serviceImage}}
+        <mj-section background-color="#FFFFFF" padding="20px">
+            <mj-column>
+                <mj-image width="150" height="100" src="{{serviceImage}}" alt="{{serviceName}}" border-radius="8px"></mj-image>
+            </mj-column>
+        </mj-section>
+        {{/if}}
+
+        <!-- Divider -->
+        <mj-section background-color="#FFFFFF">
+            <mj-column>
+                <mj-divider width="30px" border-width="3px" border-color="#9B9B9B"></mj-divider>
+            </mj-column>
+        </mj-section>
+
+        <!-- Transaction Details -->
+        <mj-section padding="20px 40px" background-color="#FFFFFF">
+            <mj-column width="100%">
+                <mj-text align="center" padding-top="10px" font-weight="700" padding="0px 20px">
+                    {{#if isSuccess}}
+                    Your {{serviceType}} payment has been processed successfully!
+                    {{else}}
+                    We're sorry, your {{serviceType}} payment could not be processed.
+                    {{/if}}
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <!-- Main Content -->
+        <mj-section background-color="#ffffff" background-size="cover" background-repeat="no-repeat" padding="20px 40px">
+            <mj-column width="100%">
+                <mj-image src="http://nimus.de/share/tpl-card/lineshadow.png" alt="" align="center" border="none" padding="0px"></mj-image>
+
+                <mj-text align="left" padding-top="20px" font-weight="600" font-size="18px" padding-left="20px" padding-right="20px">Hi {{firstName}},</mj-text>
+
+                <mj-text align="left" padding="10px 20px 0 20px" font-weight="300">
+                    {{#if isSuccess}}
+                    Your payment has been successfully processed. Here are the details:
+                    {{else}}
+                    Unfortunately, your payment could not be completed. Please see the details below:
+                    {{/if}}
+                </mj-text>
+
+                <!-- Transaction Details Table -->
+                <mj-table padding="20px">
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Service</th>
+                        <td style="padding: 8px 10px;">{{serviceName}}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Amount</th>
+                        <td style="padding: 8px 10px; font-weight: 600; color: #28a745;">₦{{amount}}</td>
+                    </tr>
+                    {{#if phone}}
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Phone Number</th>
+                        <td style="padding: 8px 10px;">{{phone}}</td>
+                    </tr>
+                    {{/if}}
+                    {{#if billersCode}}
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Customer ID</th>
+                        <td style="padding: 8px 10px;">{{billersCode}}</td>
+                    </tr>
+                    {{/if}}
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Transaction ID</th>
+                        <td style="padding: 8px 10px;">{{transactionRef}}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Date & Time</th>
+                        <td style="padding: 8px 10px;">{{transactionDate}}</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Status</th>
+                        <td style="padding: 8px 10px;">
+                            {{#if isSuccess}}
+                            <span style="color: #28a745; font-weight: 600;">✓ Successful</span>
+                            {{else}}
+                            <span style="color: #dc3545; font-weight: 600;">✗ Failed</span>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{#if walletBalance}}
+                    <tr style="text-align:left;padding:15px 0;">
+                        <th style="padding: 8px 10px; font-weight: 600; color: #666;">Wallet Balance</th>
+                        <td style="padding: 8px 10px; font-weight: 600; color: #0b3d6f;">₦{{walletBalance}}</td>
+                    </tr>
+                    {{/if}}
+                </mj-table>
+
+                {{#if isSuccess}}
+                <mj-text align="left" padding="20px 20px 10px 20px" color="#28a745" font-weight="600">
+                    🎉 Transaction completed successfully!
+                </mj-text>
+                <mj-text align="left" padding="0 20px 20px 20px" font-weight="300">
+                    {{#if vtpassMessage}}
+                    {{vtpassMessage}}
+                    {{else}}
+                    Your {{serviceType}} service has been activated. You should receive confirmation shortly.
+                    {{/if}}
+                </mj-text>
+                {{else}}
+                <mj-text align="left" padding="20px 20px 10px 20px" color="#dc3545" font-weight="600">
+                    ❌ Transaction failed
+                </mj-text>
+                <mj-text align="left" padding="0 20px 20px 20px" font-weight="300">
+                    {{#if errorMessage}}
+                    Reason: {{errorMessage}}
+                    {{else}}
+                    Please try again or contact our support team if the problem persists.
+                    {{/if}}
+                    {{#if isRefunded}}
+                    <br><br><strong>Your wallet has been refunded with ₦{{amount}}.</strong>
+                    {{/if}}
+                </mj-text>
+                {{/if}}
+
+                <!-- Action Button -->
+                {{#if isSuccess}}
+                <mj-button align="center" background-color="#28a745" color="#FFFFFF" border-radius="5px" href="{{transactionHistoryUrl}}" inner-padding="15px 30px" padding-bottom="20px" padding-top="20px">View Transaction History</mj-button>
+                {{else}}
+                <mj-button align="center" background-color="#0b3d6f" color="#FFFFFF" border-radius="5px" href="{{retryUrl}}" inner-padding="15px 30px" padding-bottom="20px" padding-top="20px">Try Again</mj-button>
+                {{/if}}
+
+                <mj-text align="center" padding="20px 20px 40px 20px" color="#666" font-size="14px">
+                    Need help? Contact our support team at support@surepay.com
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <!-- Footer -->
+        <mj-section background-color="#f8f9fa" padding="20px">
+            <mj-column>
+                <mj-text align="center" color="#666" font-size="12px">
+                    This is an automated email. Please do not reply to this message.
+                    <br>
+                    © 2025 {{appName}}. All rights reserved.
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

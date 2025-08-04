@@ -1,0 +1,340 @@
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to Surepay - Get Started</mj-title>
+    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></mj-font>
+    <mj-attributes>
+      <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#374151" line-height="26px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+    </mj-attributes>
+    <mj-style>
+      .welcome-gradient { background: linear-gradient(135deg, #0891B2 0%, #059669 100%) !important; }
+      .feature-icon { background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%) !important; }
+      .security-alert { background: linear-gradient(135deg, #FEF3C7 0%, #FEF7ED 100%) !important; }
+      .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; }
+      .verification-card { background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%) !important; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#F9FAFB">
+    <!-- Header with Brand -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column>
+        <mj-image width="180" src="{{appLogo}}" alt="Surepay" align="left"></mj-image>
+      </mj-column>
+    </mj-section>
+
+    <!-- Welcome Hero Section -->
+    <mj-section css-class="welcome-gradient" padding="48px 24px">
+      <mj-column>
+        <mj-text align="center" font-size="42px" font-weight="700" color="#FFFFFF" padding="0 0 16px 0" line-height="50px">
+          Welcome to Surepay!
+        </mj-text>
+        <mj-text align="center" font-size="20px" color="#E0F2FE" padding="0 0 24px 0" line-height="30px">
+          Your digital wallet for seamless payments
+        </mj-text>
+        <mj-text align="center" font-size="16px" color="#FFFFFF" padding="0" line-height="26px">
+          Hi {{firstName}}, we're excited to have you join thousands of Nigerians who trust Surepay for their daily transactions.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Email Verification Card -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column>
+        <mj-section css-class="verification-card" border-radius="16px" padding="32px 28px" css-class="card-shadow">
+          <mj-column>
+            <mj-text align="center" font-size="24px" font-weight="600" color="#059669" padding="0 0 16px 0">
+              📧 Verify Your Email Address
+            </mj-text>
+            <mj-text align="center" font-size="16px" color="#374151" padding="0 0 24px 0" line-height="26px">
+              To secure your account and unlock all features, please verify your email address by clicking the button below.
+            </mj-text>
+
+            <mj-button
+              background-color="#059669"
+              color="#FFFFFF"
+              font-weight="600"
+              border-radius="8px"
+              href="{{url}}"
+              inner-padding="16px 32px"
+              font-size="16px">
+              Verify Email Address
+            </mj-button>
+
+            <mj-text align="center" font-size="12px" color="#6B7280" padding="16px 0 0 0" line-height="20px">
+              Or copy and paste this link: <a href="{{url}}" style="color: #059669; word-break: break-all;">{{url}}</a>
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Features Grid -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-text align="center" font-size="28px" font-weight="700" color="#111827" padding="0 0 32px 0">
+          Everything you need in one app
+        </mj-text>
+
+        <!-- Row 1: Wallet & Airtime -->
+        <mj-section padding="0 0 16px 0">
+          <mj-column width="50%" padding="0 8px 0 0">
+            <mj-section background-color="#F8FAFC" border-radius="12px" padding="20px 16px">
+              <mj-column>
+                <mj-text align="center" font-size="32px" padding="0 0 12px 0">💳</mj-text>
+                <mj-text align="center" font-size="16px" font-weight="600" color="#111827" padding="0 0 8px 0">Fund Wallet</mj-text>
+                <mj-text align="center" font-size="13px" color="#6B7280" padding="0" line-height="20px">Add money securely using cards, bank transfers, or USSD</mj-text>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+          <mj-column width="50%" padding="0 0 0 8px">
+            <mj-section background-color="#F8FAFC" border-radius="12px" padding="20px 16px">
+              <mj-column>
+                <mj-text align="center" font-size="32px" padding="0 0 12px 0">📱</mj-text>
+                <mj-text align="center" font-size="16px" font-weight="600" color="#111827" padding="0 0 8px 0">Airtime & Data</mj-text>
+                <mj-text align="center" font-size="13px" color="#6B7280" padding="0" line-height="20px">Instant recharge for MTN, Airtel, Glo, and 9mobile</mj-text>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+        </mj-section>
+
+        <!-- Row 2: TV & Electricity -->
+        <mj-section padding="0 0 16px 0">
+          <mj-column width="50%" padding="0 8px 0 0">
+            <mj-section background-color="#F8FAFC" border-radius="12px" padding="20px 16px">
+              <mj-column>
+                <mj-text align="center" font-size="32px" padding="0 0 12px 0">📺</mj-text>
+                <mj-text align="center" font-size="16px" font-weight="600" color="#111827" padding="0 0 8px 0">TV Subscriptions</mj-text>
+                <mj-text align="center" font-size="13px" color="#6B7280" padding="0" line-height="20px">DSTV, GOtv, Startimes, and more</mj-text>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+          <mj-column width="50%" padding="0 0 0 8px">
+            <mj-section background-color="#F8FAFC" border-radius="12px" padding="20px 16px">
+              <mj-column>
+                <mj-text align="center" font-size="32px" padding="0 0 12px 0">⚡</mj-text>
+                <mj-text align="center" font-size="16px" font-weight="600" color="#111827" padding="0 0 8px 0">Electricity Bills</mj-text>
+                <mj-text align="center" font-size="13px" color="#6B7280" padding="0" line-height="20px">Quick payments for all DISCOs nationwide</mj-text>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+        </mj-section>
+
+        <!-- Row 3: Transfers & Analytics -->
+        <mj-section padding="0">
+          <mj-column width="50%" padding="0 8px 0 0">
+            <mj-section background-color="#F8FAFC" border-radius="12px" padding="20px 16px">
+              <mj-column>
+                <mj-text align="center" font-size="32px" padding="0 0 12px 0">💸</mj-text>
+                <mj-text align="center" font-size="16px" font-weight="600" color="#111827" padding="0 0 8px 0">Send Money</mj-text>
+                <mj-text align="center" font-size="13px" color="#6B7280" padding="0" line-height="20px">Transfer funds to other Surepay users instantly</mj-text>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+          <mj-column width="50%" padding="0 0 0 8px">
+            <mj-section background-color="#F8FAFC" border-radius="12px" padding="20px 16px">
+              <mj-column>
+                <mj-text align="center" font-size="32px" padding="0 0 12px 0">📊</mj-text>
+                <mj-text align="center" font-size="16px" font-weight="600" color="#111827" padding="0 0 8px 0">Transaction History</mj-text>
+                <mj-text align="center" font-size="13px" color="#6B7280" padding="0" line-height="20px">Track and monitor all your payments</mj-text>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Why Choose Surepay -->
+    <mj-section background-color="#F8FAFC" padding="40px 24px">
+      <mj-column>
+        <mj-text align="center" font-size="24px" font-weight="700" color="#111827" padding="0 0 24px 0">
+          Why 50,000+ Nigerians choose Surepay
+        </mj-text>
+
+        <mj-section padding="0 0 16px 0">
+          <mj-column width="20%">
+            <mj-text align="center" font-size="32px" padding="0">🚀</mj-text>
+          </mj-column>
+          <mj-column width="80%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">Lightning Fast</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">Transactions complete in seconds, not minutes</mj-text>
+          </mj-column>
+        </mj-section>
+
+        <mj-section padding="0 0 16px 0">
+          <mj-column width="20%">
+            <mj-text align="center" font-size="32px" padding="0">🔒</mj-text>
+          </mj-column>
+          <mj-column width="80%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">Bank-Level Security</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">256-bit encryption and PCI DSS compliance</mj-text>
+          </mj-column>
+        </mj-section>
+
+        <mj-section padding="0 0 16px 0">
+          <mj-column width="20%">
+            <mj-text align="center" font-size="32px" padding="0">💰</mj-text>
+          </mj-column>
+          <mj-column width="80%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">Best Rates</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">Competitive pricing with transparent fees</mj-text>
+          </mj-column>
+        </mj-section>
+
+        <mj-section padding="0">
+          <mj-column width="20%">
+            <mj-text align="center" font-size="32px" padding="0">🎯</mj-text>
+          </mj-column>
+          <mj-column width="80%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">24/7 Support</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">Round-the-clock customer support when you need it</mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Security Notice -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column>
+        <mj-section css-class="security-alert" border-left="4px solid #F59E0B" border-radius="12px" padding="20px 24px">
+          <mj-column>
+            <mj-text font-size="16px" font-weight="600" color="#92400E" padding="0 0 8px 0">
+              🔐 Important Security Notice
+            </mj-text>
+            <mj-text font-size="14px" color="#B45309" padding="0" line-height="22px">
+              For your protection, never share your login credentials with anyone. Surepay will never ask for your password, PIN, or OTP via email, SMS, or phone calls.
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Getting Started Steps -->
+    <mj-section background-color="#F8FAFC" padding="40px 24px">
+      <mj-column>
+        <mj-text align="center" font-size="24px" font-weight="700" color="#111827" padding="0 0 32px 0">
+          Get started in 3 simple steps
+        </mj-text>
+
+        <!-- Step 1 -->
+        <mj-section background-color="#FFFFFF" border-radius="12px" padding="20px" margin="0 0 16px 0" css-class="card-shadow">
+          <mj-column width="15%">
+            <mj-text align="center" font-size="24px" font-weight="700" color="#059669" padding="0">1</mj-text>
+          </mj-column>
+          <mj-column width="85%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">Verify your email</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">Click the verification button above to secure your account</mj-text>
+          </mj-column>
+        </mj-section>
+
+        <!-- Step 2 -->
+        <mj-section background-color="#FFFFFF" border-radius="12px" padding="20px" margin="0 0 16px 0" css-class="card-shadow">
+          <mj-column width="15%">
+            <mj-text align="center" font-size="24px" font-weight="700" color="#059669" padding="0">2</mj-text>
+          </mj-column>
+          <mj-column width="85%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">Add money to your wallet</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">Fund your wallet using your debit card or bank transfer</mj-text>
+          </mj-column>
+        </mj-section>
+
+        <!-- Step 3 -->
+        <mj-section background-color="#FFFFFF" border-radius="12px" padding="20px" margin="0" css-class="card-shadow">
+          <mj-column width="15%">
+            <mj-text align="center" font-size="24px" font-weight="700" color="#059669" padding="0">3</mj-text>
+          </mj-column>
+          <mj-column width="85%">
+            <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 4px 0">Start making payments</mj-text>
+            <mj-text font-size="14px" color="#6B7280" padding="0" line-height="22px">Buy airtime, pay bills, or send money to friends and family</mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Mobile App Promotion -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column>
+        <mj-section background-color="#F0F9FF" border-radius="16px" padding="32px 24px">
+          <mj-column>
+            <mj-text align="center" font-size="20px" font-weight="600" color="#0369A1" padding="0 0 12px 0">
+              📱 Download our mobile app
+            </mj-text>
+            <mj-text align="center" font-size="16px" color="#1E40AF" padding="0 0 20px 0" line-height="26px">
+              Get the Surepay mobile app for faster payments on the go. Available on Google Play Store and Apple App Store.
+            </mj-text>
+            <mj-text align="center" font-size="14px" color="#3730A3" padding="0" line-height="22px">
+              Coming soon to your favorite app store!
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Support Section -->
+    <mj-section background-color="#F8FAFC" padding="32px 24px">
+      <mj-column>
+        <mj-text align="center" font-size="20px" font-weight="600" color="#111827" padding="0 0 16px 0">
+          Need help getting started?
+        </mj-text>
+        <mj-text align="center" font-size="16px" color="#4B5563" padding="0 0 20px 0" line-height="26px">
+          Our friendly support team is available 24/7 to help you with any questions.
+        </mj-text>
+
+        <!-- Support Options -->
+        <mj-section background-color="#FFFFFF" border-radius="12px" padding="24px" css-class="card-shadow">
+          <mj-column>
+            <mj-text align="center" font-size="16px" color="#374151" padding="0 0 12px 0">
+              📧 <a href="mailto:support@surepay.com" style="color: #059669; text-decoration: none; font-weight: 600;">support@hovapay.com</a>
+            </mj-text>
+            <mj-text align="center" font-size="14px" color="#6B7280" padding="0">
+              We typically respond within 30 minutes
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Final CTA -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column>
+        <mj-text align="center" font-size="18px" color="#374151" padding="0 0 24px 0" line-height="28px">
+          Ready to experience seamless digital payments?
+        </mj-text>
+
+        <mj-button
+          background-color="#059669"
+          color="#FFFFFF"
+          font-weight="600"
+          border-radius="8px"
+          href="{{url}}"
+          inner-padding="16px 32px"
+          font-size="16px">
+          Verify Email & Get Started
+        </mj-button>
+
+        <mj-text align="center" font-size="16px" color="#6B7280" padding="24px 0 0 0" line-height="26px">
+          Thank you for choosing Hovapay!
+          <br>
+          <span style="font-weight: 600; color: #111827;">The Hovapay Team</span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#111827" padding="32px 24px">
+      <mj-column>
+        <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px" padding="0 0 16px 0">
+          This email was sent to {{email}} because you created a Hovapay account.
+        </mj-text>
+        <mj-text align="center" color="#6B7280" font-size="12px" line-height="20px">
+          © 2025 Hovapay. All rights reserved.
+          <br><br>
+          <span style="color: #059669;">Secure</span> • <span style="color: #059669;">Fast</span> • <span style="color: #059669;">Reliable</span>
+          <br>
+          Making digital payments simple for everyone
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
