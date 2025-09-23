@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const BASE_URL = 'https://hovapay-api.onrender.com';
+const BASE_URL = 'https://surepay-api-v2.onrender.com';
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY || 'sk_test_your_actual_paystack_secret_key';
 
 // Debug Paystack signature generation vs server expectation

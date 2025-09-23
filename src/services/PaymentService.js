@@ -598,6 +598,98 @@ class PaymentService {
   /**
    * ⚠️ NEW: Enhanced webhook handler for virtual account credits
    */
+  // async handleVirtualAccountCredit(webhookData) {
+  //   try {
+  //     console.log('PaymentService: Handling virtual account credit');
+  //
+  //     const { amount, reference, accountNumber, senderName, senderAccount, senderBank } = webhookData;
+  //
+  //     // Import required models dynamically to avoid circular dependencies
+  //     const { default: VirtualAccount } = await import('../models/VirtualAccount.js');
+  //     const { default: WalletService } = await import('./WalletService.js');
+  //     const { default: Transaction } = await import('../models/Transaction.js');
+  //     const { sendTransactionNotificationEmail } = await import('../../utils/emails/sendEmails.js');
+  //
+  //     // Find virtual account by account number
+  //     const virtualAccount = await VirtualAccount.findOne({
+  //       'accounts.accountNumber': accountNumber
+  //     }).populate('user', 'email firstName username');
+  //
+  //     if (!virtualAccount) {
+  //       console.error('Virtual account not found for:', accountNumber);
+  //       throw new Error('Virtual account not found');
+  //     }
+  //
+  //     console.log('Virtual account found for user:', virtualAccount.user._id);
+  //
+  //     // Check if transaction already exists to prevent duplicates
+  //     const existingTransaction = await Transaction.findOne({
+  //       reference: reference
+  //     });
+  //
+  //     if (existingTransaction) {
+  //       console.log('Transaction already processed:', reference);
+  //       return {
+  //         success: true,
+  //         message: 'Transaction already processed',
+  //         transactionId: existingTransaction._id
+  //       };
+  //     }
+  //
+  //     // Credit the user's wallet
+  //     console.log('Crediting wallet:', {
+  //       userId: virtualAccount.user._id,
+  //       amount: amount,
+  //       reference: reference
+  //     });
+  //
+  //     const creditResult = await WalletService.creditWallet(
+  //         virtualAccount.user._id,
+  //         amount,
+  //         'virtual_account_credit',
+  //         reference,
+  //         {
+  //           virtualAccountNumber: accountNumber,
+  //           senderName: senderName,
+  //           senderAccount: senderAccount,
+  //           senderBank: senderBank,
+  //           description: `Bank transfer from ${senderName}`,
+  //           gateway: 'monnify'
+  //         }
+  //     );
+  //
+  //     console.log('Wallet credited successfully');
+  //
+  //     // Find the created transaction for email notification
+  //     const transactionCreated = await Transaction.findOne({
+  //       reference: reference
+  //     });
+  //
+  //     // Send email notification
+  //     if (transactionCreated && virtualAccount.user) {
+  //       try {
+  //         await sendTransactionNotificationEmail(transactionCreated, virtualAccount.user);
+  //         console.log('Virtual account credit email sent successfully');
+  //       } catch (emailError) {
+  //         console.error('Error sending virtual account credit email:', emailError);
+  //         // Don't fail the credit process if email fails
+  //       }
+  //     }
+  //
+  //     return {
+  //       success: true,
+  //       message: 'Virtual account credited successfully',
+  //       amount: amount,
+  //       userId: virtualAccount.user._id,
+  //       transactionId: transactionCreated?._id
+  //     };
+  //
+  //   } catch (error) {
+  //     console.error('PaymentService: Virtual account credit error:', error);
+  //     throw error;
+  //   }
+  // }
+
   async handleVirtualAccountCredit(webhookData) {
     try {
       console.log('PaymentService: Handling virtual account credit');
@@ -610,13 +702,35 @@ class PaymentService {
       const { default: Transaction } = await import('../models/Transaction.js');
       const { sendTransactionNotificationEmail } = await import('../../utils/emails/sendEmails.js');
 
-      // Find virtual account by account number
-      const virtualAccount = await VirtualAccount.findOne({
-        'accounts.accountNumber': accountNumber
-      }).populate('user', 'email firstName username');
+      // Find virtual account by account number with retry logic
+      let virtualAccount = null;
+      let retryCount = 0;
+      const maxRetries = 3;
+
+      while (!virtualAccount && retryCount < maxRetries) {
+        try {
+          virtualAccount = await VirtualAccount.findOne({
+            'accounts.accountNumber': accountNumber
+          }).populate('user', 'email firstName username');
+
+          if (!virtualAccount) {
+            retryCount++;
+            console.log(`Virtual account not found, retry ${retryCount}/${maxRetries}`);
+            if (retryCount < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+          }
+        } catch (dbError) {
+          console.error(`Database error on retry ${retryCount}:`, dbError);
+          retryCount++;
+          if (retryCount < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      }
 
       if (!virtualAccount) {
-        console.error('Virtual account not found for:', accountNumber);
+        console.error('Virtual account not found after retries for:', accountNumber);
         throw new Error('Virtual account not found');
       }
 
@@ -636,7 +750,7 @@ class PaymentService {
         };
       }
 
-      // Credit the user's wallet
+      // Credit the user's wallet using WalletService
       console.log('Crediting wallet:', {
         userId: virtualAccount.user._id,
         amount: amount,
@@ -654,7 +768,9 @@ class PaymentService {
             senderAccount: senderAccount,
             senderBank: senderBank,
             description: `Bank transfer from ${senderName}`,
-            gateway: 'monnify'
+            gateway: 'monnify',
+            productType: 'RESERVED_ACCOUNT',
+            processedAt: new Date()
           }
       );
 

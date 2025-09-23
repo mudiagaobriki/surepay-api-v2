@@ -3,17 +3,17 @@ import axios from 'axios';
 
 class FlightBookingService {
     constructor() {
-        this.baseURL = process.env.AMADEUS_BASE_URL || 'https://test.api.amadeus.com';
+        this.baseURL = process.env.AMADEUS_BASE_URL || 'https://api.amadeus.com';
         this.apiKey = process.env.AMADEUS_API_KEY;
         this.apiSecret = process.env.AMADEUS_API_SECRET;
         this.accessToken = null;
         this.tokenExpiry = null;
 
-        // Fallback to demo mode if credentials not available
-        if (!this.apiKey || !this.apiSecret) {
-            console.warn('Amadeus API credentials not found, using demo service');
-            this.isDemo = true;
-        }
+        // // Fallback to demo mode if credentials not available
+        // if (!this.apiKey || !this.apiSecret) {
+        //     console.warn('Amadeus API credentials not found, using demo service');
+        //     this.isDemo = true;
+        // }
 
         console.log('FlightBookingService initialized:', {
             baseURL: this.baseURL,
@@ -112,14 +112,23 @@ class FlightBookingService {
         try {
             console.log('Searching flights with params:', searchParams);
 
-            if (this.isDemo) {
-                return this.getDemoFlightResults(searchParams);
-            }
+            // Format dates properly for Amadeus API
+            const formatDate = (date) => {
+                if (typeof date === 'string') {
+                    // If already a string, check if it needs formatting
+                    const dateObj = new Date(date);
+                    return dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
+                }
+                if (date instanceof Date) {
+                    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+                }
+                return date;
+            };
 
             const params = {
                 originLocationCode: searchParams.origin,
                 destinationLocationCode: searchParams.destination,
-                departureDate: searchParams.departureDate,
+                departureDate: formatDate(searchParams.departureDate), // FIXED: Format date properly
                 adults: searchParams.adults || 1,
                 children: searchParams.children || 0,
                 infants: searchParams.infants || 0,
@@ -128,9 +137,12 @@ class FlightBookingService {
                 max: searchParams.limit || 50
             };
 
+            // Format return date if provided
             if (searchParams.returnDate) {
-                params.returnDate = searchParams.returnDate;
+                params.returnDate = formatDate(searchParams.returnDate); // FIXED: Format return date
             }
+
+            console.log('Amadeus API params:', params); // Debug log to verify format
 
             const response = await this.makeRequest('/v2/shopping/flight-offers', 'GET', null, params);
 
@@ -142,7 +154,14 @@ class FlightBookingService {
             };
         } catch (error) {
             console.error('Error searching flights:', error);
-            return this.getDemoFlightResults(searchParams);
+
+            // Log the specific error details for debugging
+            if (error.response?.data?.errors) {
+                console.error('Amadeus API Error Details:', error.response.data.errors);
+            }
+
+            // Don't fall back to demo - throw error for production
+            throw error;
         }
     }
 
@@ -157,8 +176,8 @@ class FlightBookingService {
             {
                 id: 'FLIGHT-001',
                 price: {
-                    total: 450000,
-                    base: 380000,
+                    total: 150000,
+                    base: 80000,
                     taxes: 70000,
                     currency: 'NGN'
                 },
@@ -193,8 +212,8 @@ class FlightBookingService {
                         travelerType: 'ADULT',
                         price: {
                             currency: 'NGN',
-                            total: '450000',
-                            base: '380000'
+                            total: '150000',
+                            base: '80000'
                         }
                     }
                 ],
@@ -216,8 +235,8 @@ class FlightBookingService {
             {
                 id: 'FLIGHT-002',
                 price: {
-                    total: 320000,
-                    base: 280000,
+                    total: 120000,
+                    base: 80000,
                     taxes: 40000,
                     currency: 'NGN'
                 },
@@ -269,8 +288,8 @@ class FlightBookingService {
                         travelerType: 'ADULT',
                         price: {
                             currency: 'NGN',
-                            total: '320000',
-                            base: '280000'
+                            total: '120000',
+                            base: '80000'
                         }
                     }
                 ],
@@ -397,7 +416,11 @@ class FlightBookingService {
             };
         } catch (error) {
             console.error('Error getting price details:', error);
-            return this.getDemoPriceDetails(flightOfferId);
+            return {
+                success: false,
+                error: error.response?.data?.errors?.[0]?.detail || error.message
+            };
+            // return this.getDemoPriceDetails(flightOfferId);
         }
     }
 
@@ -411,8 +434,8 @@ class FlightBookingService {
                 id: flightOfferId,
                 price: {
                     currency: 'NGN',
-                    total: '450000',
-                    base: '380000',
+                    total: '150000',
+                    base: '80000',
                     taxes: '70000',
                     fees: '0'
                 },
@@ -472,7 +495,7 @@ class FlightBookingService {
                     remarks: {
                         general: [{
                             subType: 'GENERAL_MISCELLANEOUS',
-                            text: `Booking via ${process.env.APPLICATION_NAME || 'Surepay'}`
+                            text: `Booking via ${process.env.APPLICATION_NAME || 'Hovapay'}`
                         }]
                     },
                     ticketingAgreement: {
@@ -635,7 +658,11 @@ class FlightBookingService {
             };
         } catch (error) {
             console.error('Error getting airport info:', error);
-            return this.getDemoAirportInfo(iataCode);
+            return {
+                success: false,
+                error: error.response?.data?.errors?.[0]?.detail || error.message
+            };
+            // return this.getDemoAirportInfo(iataCode);
         }
     }
 
@@ -756,7 +783,11 @@ class FlightBookingService {
             };
         } catch (error) {
             console.error('Error getting airline info:', error);
-            return this.getDemoAirlineInfo(airlineCode);
+            return {
+                success: false,
+                error: error.response?.data?.errors?.[0]?.detail || error.message
+            };
+            // return this.getDemoAirlineInfo(airlineCode);
         }
     }
 

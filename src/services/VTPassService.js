@@ -1214,7 +1214,7 @@ class VTPassService {
   async processBulkSMSPayment(paymentData) {
     console.log('Processing bulk SMS payment with DND route...');
 
-    const { recipients, message, sender = 'Surepay', amount } = paymentData;
+    const { recipients, message, sender = 'Hovapay', amount } = paymentData;
 
     if (!recipients || !message) {
       throw new Error('Missing required SMS fields: recipients, message');
@@ -1405,7 +1405,7 @@ class VTPassService {
       const testSMS = {
         sender: 'TEST',
         recipients: '08011111111', // VTPass test number
-        message: 'Test message from Surepay',
+        message: 'Test message from Hovapay',
         responseType: 'json'
       };
 

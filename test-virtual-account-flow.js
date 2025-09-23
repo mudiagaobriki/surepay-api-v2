@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const BASE_URL = 'https://hovapay-api.onrender.com';
+const BASE_URL = 'https://surepay-api-v2.onrender.com';
 const MONNIFY_SECRET = process.env.MONNIFY_SECRET_KEY;
 const AUTH_TOKEN = process.env.TEST_AUTH_TOKEN; // You'll need to set this
 

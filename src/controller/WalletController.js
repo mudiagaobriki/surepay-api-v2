@@ -728,239 +728,555 @@ function WalletController() {
   /**
    * ⚠️ ENHANCED: Handle Monnify webhooks for virtual account funding with guaranteed credit
    */
+  /**
+   * FIXED: Handle Monnify webhooks for virtual account funding
+   * This handles both regular payments AND virtual account transfers
+   */
+  // const monnifyWebhook = async (req, res) => {
+  //   try {
+  //     console.log('=== MONNIFY WEBHOOK RECEIVED ===');
+  //     console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  //     console.log('Body:', JSON.stringify(req.body, null, 2));
+  //
+  //     // Get signature from headers
+  //     const signature = req.headers['monnify-signature'];
+  //
+  //     if (!signature) {
+  //       console.error('No Monnify signature provided');
+  //       return res.status(200).json({
+  //         status: 'error',
+  //         message: 'No signature provided'
+  //       });
+  //     }
+  //
+  //     // Verify webhook signature using PaymentService
+  //     const isValid = PaymentService.verifyWebhookSignature('monnify', signature, req.body);
+  //
+  //     if (!isValid) {
+  //       console.error('Invalid Monnify webhook signature');
+  //       return res.status(200).json({
+  //         status: 'error',
+  //         message: 'Invalid signature'
+  //       });
+  //     }
+  //
+  //     console.log('✅ Monnify webhook signature verified successfully');
+  //
+  //     const { eventType, eventData } = req.body;
+  //
+  //     // Handle successful transactions
+  //     if (eventType === 'SUCCESSFUL_TRANSACTION') {
+  //       console.log('Processing transaction:', {
+  //         reference: eventData.paymentReference,
+  //         amount: eventData.amountPaid,
+  //         accountNumber: eventData.destinationAccountInformation?.accountNumber,
+  //         productType: eventData.product?.type
+  //       });
+  //
+  //       // CRITICAL FIX: Determine if this is a virtual account credit or regular payment
+  //       const isVirtualAccountCredit = eventData.product?.type === 'RESERVED_ACCOUNT';
+  //
+  //       if (isVirtualAccountCredit) {
+  //         // Handle virtual account credit (no Payment record expected)
+  //         console.log('🏦 Processing virtual account credit');
+  //         return await handleVirtualAccountCredit(eventData, res);
+  //       } else {
+  //         // Handle regular payment (Payment record should exist)
+  //         console.log('💳 Processing regular payment');
+  //         return await handleRegularPayment(eventData, res);
+  //       }
+  //     }
+  //
+  //     // Handle other event types
+  //     else if (eventType === 'FAILED_TRANSACTION') {
+  //       console.log('Received failed transaction webhook:', eventData.paymentReference);
+  //       return res.status(200).json({
+  //         status: 'success',
+  //         message: 'Failed transaction webhook processed'
+  //       });
+  //     }
+  //
+  //     // Handle unknown event types
+  //     else {
+  //       console.log('Received unknown Monnify event type:', eventType);
+  //       return res.status(200).json({
+  //         status: 'success',
+  //         message: `Unknown event type: ${eventType}`
+  //       });
+  //     }
+  //
+  //   } catch (error) {
+  //     console.error('❌ Error processing Monnify webhook:', error);
+  //     return res.status(200).json({
+  //       status: 'error',
+  //       message: 'Error processing webhook',
+  //       error: error.message,
+  //       processed: true
+  //     });
+  //   }
+  // };
+
   const monnifyWebhook = async (req, res) => {
-    try {
-      console.log('=== MONNIFY WEBHOOK RECEIVED ===');
-      console.log('Headers:', JSON.stringify(req.headers, null, 2));
-      console.log('Body:', JSON.stringify(req.body, null, 2));
-
-      // Get signature from headers
-      const signature = req.headers['monnify-signature'];
-
-      if (!signature) {
-        console.error('No Monnify signature provided');
-        return res.status(200).json({
-          status: 'error',
-          message: 'No signature provided'
-        });
-      }
-
-      // Verify webhook signature using PaymentService
-      const isValid = PaymentService.verifyWebhookSignature('monnify', signature, req.body);
-
-      if (!isValid) {
-        console.error('Invalid Monnify webhook signature');
-        console.error('Received signature:', signature);
-        console.error('Payload:', JSON.stringify(req.body));
-        return res.status(200).json({
-          status: 'error',
-          message: 'Invalid signature'
-        });
-      }
-
-      console.log('✅ Monnify webhook signature verified successfully');
-
-      const { eventType, eventData } = req.body;
-
-      // Handle successful virtual account credit
-      if (eventType === 'SUCCESSFUL_TRANSACTION') {
-        console.log('Processing virtual account credit:', {
-          reference: eventData.paymentReference,
-          amount: eventData.amountPaid,
-          accountNumber: eventData.destinationAccountNumber,
-          senderName: eventData.customerName
-        });
-
-        // Find virtual account by account number with retries for reliability
-        let virtualAccount = null;
-        let retryCount = 0;
-        const maxRetries = 3;
-
-        while (!virtualAccount && retryCount < maxRetries) {
-          try {
-            virtualAccount = await VirtualAccount.findOne({
-              'accounts.accountNumber': eventData.destinationAccountNumber
-            }).populate('user', 'email firstName username');
-
-            if (!virtualAccount) {
-              retryCount++;
-              console.log(`Virtual account not found, retry ${retryCount}/${maxRetries}`);
-              if (retryCount < maxRetries) {
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
-              }
-            }
-          } catch (dbError) {
-            console.error(`Database error on retry ${retryCount}:`, dbError);
-            retryCount++;
-            if (retryCount < maxRetries) {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-          }
-        }
-
-        if (!virtualAccount) {
-          console.error('Virtual account not found after retries for:', eventData.destinationAccountNumber);
-          // Still return success to prevent Monnify from retrying
-          return res.status(200).json({
-            status: 'error',
-            message: 'Virtual account not found',
-            processed: true // Indicate we processed the webhook
-          });
-        }
-
-        console.log('✅ Virtual account found for user:', virtualAccount.user._id);
-
-        // Check if transaction already exists with multiple reference formats
-        const possibleReferences = [
-          eventData.paymentReference,
-          eventData.transactionReference,
-          eventData.sessionId
-        ].filter(Boolean);
-
-        let existingTransaction = null;
-        for (const ref of possibleReferences) {
-          existingTransaction = await Transaction.findOne({ reference: ref });
-          if (existingTransaction) {
-            console.log(`Transaction already exists with reference: ${ref}`);
-            break;
-          }
-        }
-
-        if (existingTransaction) {
-          console.log('Virtual account transaction already processed:', eventData.paymentReference);
-          return res.status(200).json({
-            status: 'success',
-            message: 'Transaction already processed',
-            transactionId: existingTransaction._id
-          });
-        }
-
-        // ⚠️ CRITICAL: Use database transaction to ensure atomicity
-        const session = await mongoose.startSession();
-        session.startTransaction();
-
-        let transactionCreated = null;
-        let emailSent = false;
-
         try {
-          // Credit the user's wallet with session for atomicity
-          console.log('Crediting wallet for virtual account:', {
-            userId: virtualAccount.user._id,
-            amount: eventData.amountPaid,
-            reference: eventData.paymentReference
-          });
+          console.log('=== MONNIFY WEBHOOK RECEIVED ===');
+          console.log('DEBUG: Using FIXED monnifyWebhook function');
+          console.log('Headers:', JSON.stringify(req.headers, null, 2));
+          console.log('Body:', JSON.stringify(req.body, null, 2));
 
-          await WalletService.creditWallet(
-              virtualAccount.user._id,
-              eventData.amountPaid,
-              'virtual_account_credit',
-              eventData.paymentReference,
-              {
-                virtualAccountNumber: eventData.destinationAccountNumber,
-                senderName: eventData.customerName,
-                senderAccount: eventData.sourceAccountNumber,
-                senderBank: eventData.sourceBankName,
-                description: `Bank transfer from ${eventData.customerName}`,
-                gateway: 'monnify',
-                webhookEventType: eventType,
-                webhookData: eventData,
-                processedAt: new Date()
-              }
-          );
+          // Get signature from headers
+          const signature = req.headers['monnify-signature'];
 
-          console.log('✅ Virtual account credit successful');
-
-          // Commit the transaction
-          await session.commitTransaction();
-
-          // Find the created transaction for email notification
-          transactionCreated = await Transaction.findOne({
-            reference: eventData.paymentReference
-          });
-
-          // Send email notification (outside of database transaction)
-          if (transactionCreated && virtualAccount.user) {
-            try {
-              await sendTransactionNotificationEmail(transactionCreated, virtualAccount.user);
-              emailSent = true;
-              console.log('✅ Virtual account credit email sent successfully');
-            } catch (emailError) {
-              console.error('❌ Error sending virtual account credit email:', emailError);
-              // Don't fail the webhook processing if email fails
-            }
-          }
-
-          // Return success response
-          return res.status(200).json({
-            status: 'success',
-            message: 'Virtual account credited successfully',
-            data: {
-              userId: virtualAccount.user._id,
-              amount: eventData.amountPaid,
-              reference: eventData.paymentReference,
-              transactionId: transactionCreated?._id,
-              emailSent
-            }
-          });
-
-        } catch (creditError) {
-          // Rollback the transaction
-          await session.abortTransaction();
-          console.error('❌ Error crediting virtual account wallet:', creditError);
-
-          // Handle duplicate key error gracefully
-          if (creditError.code === 11000 && creditError.keyPattern?.reference) {
-            console.log('Duplicate transaction detected, likely already processed');
+          if (!signature) {
+            console.error('No Monnify signature provided');
             return res.status(200).json({
-              status: 'success',
-              message: 'Transaction already processed (duplicate)',
-              processed: true
+              status: 'error',
+              message: 'No signature provided'
             });
           }
 
-          // For other errors, we still return 200 to prevent retries but log the error
-          console.error('Virtual account credit failed:', creditError);
+          // Verify webhook signature using PaymentService
+          const isValid = PaymentService.verifyWebhookSignature('monnify', signature, req.body);
+
+          if (!isValid) {
+            console.error('Invalid Monnify webhook signature');
+            return res.status(200).json({
+              status: 'error',
+              message: 'Invalid signature'
+            });
+          }
+
+          console.log('✅ Monnify webhook signature verified successfully');
+
+          const { eventType, eventData } = req.body;
+
+          // Handle successful transactions
+          if (eventType === 'SUCCESSFUL_TRANSACTION') {
+            console.log('Processing transaction:', {
+              reference: eventData.paymentReference,
+              amount: eventData.amountPaid,
+              accountNumber: eventData.destinationAccountInformation?.accountNumber,
+              productType: eventData.product?.type
+            });
+
+            // CRITICAL: Check if this is a virtual account credit
+            const isVirtualAccountCredit = eventData.product?.type === 'RESERVED_ACCOUNT';
+
+            if (isVirtualAccountCredit) {
+              console.log('🏦 Processing VIRTUAL ACCOUNT CREDIT');
+
+              const accountNumber = eventData.destinationAccountInformation?.accountNumber;
+
+              if (!accountNumber) {
+                console.error('No destination account number in virtual account credit');
+                return res.status(200).json({
+                  status: 'error',
+                  message: 'No destination account number'
+                });
+              }
+
+              // Find virtual account by account number
+              const virtualAccount = await VirtualAccount.findOne({
+                'accounts.accountNumber': accountNumber
+              }).populate('user', 'email firstName username');
+
+              if (!virtualAccount) {
+                console.error('Virtual account not found for:', accountNumber);
+                return res.status(200).json({
+                  status: 'error',
+                  message: 'Virtual account not found',
+                  processed: true
+                });
+              }
+
+              console.log('✅ Virtual account found for user:', virtualAccount.user._id);
+
+              // Check if transaction already exists
+              const existingTransaction = await Transaction.findOne({
+                reference: eventData.paymentReference
+              });
+
+              if (existingTransaction) {
+                console.log('Transaction already processed:', eventData.paymentReference);
+                return res.status(200).json({
+                  status: 'success',
+                  message: 'Transaction already processed',
+                  transactionId: existingTransaction._id
+                });
+              }
+
+              // Use database session for atomicity
+              const session = await mongoose.startSession();
+              session.startTransaction();
+
+              try {
+                console.log('Crediting wallet for virtual account:', {
+                  userId: virtualAccount.user._id,
+                  amount: eventData.amountPaid,
+                  reference: eventData.paymentReference
+                });
+
+                await WalletService.creditWallet(
+                    virtualAccount.user._id,
+                    eventData.amountPaid,
+                    'virtual_account_credit',
+                    eventData.paymentReference,
+                    {
+                      virtualAccountNumber: accountNumber,
+                      senderName: eventData.paymentSourceInformation?.[0]?.accountName || 'Unknown',
+                      senderAccount: eventData.paymentSourceInformation?.[0]?.accountNumber,
+                      senderBank: eventData.paymentSourceInformation?.[0]?.bankName,
+                      description: `Bank transfer from ${eventData.paymentSourceInformation?.[0]?.accountName || 'Unknown'}`,
+                      gateway: 'monnify',
+                      webhookEventType: eventType,
+                      webhookData: eventData,
+                      processedAt: new Date()
+                    }
+                );
+
+                await session.commitTransaction();
+                console.log('✅ Virtual account credit successful');
+
+                // Send email notification (outside of transaction)
+                const transactionCreated = await Transaction.findOne({
+                  reference: eventData.paymentReference
+                });
+
+                if (transactionCreated && virtualAccount.user) {
+                  try {
+                    await sendTransactionNotificationEmail(transactionCreated, virtualAccount.user);
+                    console.log('✅ Virtual account credit email sent successfully');
+                  } catch (emailError) {
+                    console.error('Error sending virtual account credit email:', emailError);
+                  }
+                }
+
+                return res.status(200).json({
+                  status: 'success',
+                  message: 'Virtual account credited successfully',
+                  data: {
+                    userId: virtualAccount.user._id,
+                    amount: eventData.amountPaid,
+                    reference: eventData.paymentReference,
+                    transactionId: transactionCreated?._id
+                  }
+                });
+
+              } catch (creditError) {
+                await session.abortTransaction();
+                console.error('Error crediting virtual account wallet:', creditError);
+
+                // Handle duplicate key error gracefully
+                if (creditError.code === 11000 && creditError.keyPattern?.reference) {
+                  console.log('Duplicate transaction detected, likely already processed');
+                  return res.status(200).json({
+                    status: 'success',
+                    message: 'Transaction already processed (duplicate)',
+                    processed: true
+                  });
+                }
+
+                return res.status(200).json({
+                  status: 'error',
+                  message: 'Failed to credit wallet',
+                  error: creditError.message,
+                  processed: true
+                });
+              } finally {
+                await session.endSession();
+              }
+
+            } else {
+              console.log('💳 Processing REGULAR PAYMENT');
+
+              // Handle regular payment (Payment record should exist)
+              const payment = await Payment.findOne({
+                $or: [
+                  { reference: eventData.paymentReference },
+                  { gatewayReference: eventData.paymentReference }
+                ]
+              }).populate('user', 'email firstName username');
+
+              if (!payment) {
+                console.error('Payment not found for reference:', eventData.paymentReference);
+                return res.status(200).json({
+                  status: 'error',
+                  message: 'Payment not found',
+                  processed: true
+                });
+              }
+
+              console.log('Payment found:', payment._id);
+
+              // Update payment status if not already successful
+              if (payment.status !== 'success') {
+                payment.status = 'success';
+                payment.gatewayResponse = {
+                  ...payment.gatewayResponse,
+                  webhook: eventData,
+                  webhookProcessedAt: new Date()
+                };
+                payment.paidAt = new Date(eventData.paidOn);
+                payment.verifiedAt = new Date();
+                await payment.save();
+              }
+
+              // Credit wallet if not already credited
+              if (payment.status === 'success' && !payment.walletCredited) {
+                try {
+                  await WalletService.creditWallet(
+                      payment.user._id,
+                      payment.amount,
+                      'deposit',
+                      payment.reference,
+                      {
+                        paymentId: payment._id,
+                        gateway: 'monnify',
+                        description: 'Wallet funding via Monnify (webhook)'
+                      }
+                  );
+
+                  payment.walletCredited = true;
+                  payment.walletCreditedAt = new Date();
+                  await payment.save();
+
+                  // Send email notification
+                  const transactionCreated = await Transaction.findOne({
+                    reference: payment.reference
+                  });
+
+                  if (transactionCreated && payment.user) {
+                    try {
+                      await sendTransactionNotificationEmail(transactionCreated, payment.user);
+                      console.log('✅ Payment success email sent');
+                    } catch (emailError) {
+                      console.error('Error sending payment email:', emailError);
+                    }
+                  }
+
+                } catch (walletError) {
+                  if (walletError.code === 11000 && walletError.keyPattern?.reference) {
+                    console.log('Transaction already exists, marking as credited');
+                    payment.walletCredited = true;
+                    payment.walletCreditedAt = new Date();
+                    await payment.save();
+                  } else {
+                    throw walletError;
+                  }
+                }
+              }
+
+              return res.status(200).json({
+                status: 'success',
+                message: 'Regular payment processed successfully',
+                paymentId: payment._id
+              });
+            }
+          }
+
+          // Handle other event types
+          else if (eventType === 'FAILED_TRANSACTION') {
+            console.log('Received failed transaction webhook:', eventData.paymentReference);
+            return res.status(200).json({
+              status: 'success',
+              message: 'Failed transaction webhook processed'
+            });
+          }
+
+          // Handle unknown event types
+          else {
+            console.log('Received unknown Monnify event type:', eventType);
+            return res.status(200).json({
+              status: 'success',
+              message: `Unknown event type: ${eventType}`
+            });
+          }
+
+        } catch (error) {
+          console.error('❌ Error processing Monnify webhook:', error);
           return res.status(200).json({
             status: 'error',
-            message: 'Failed to credit wallet',
-            error: creditError.message,
+            message: 'Error processing webhook',
+            error: error.message,
             processed: true
           });
-        } finally {
-          await session.endSession();
         }
-      }
+      };
 
-      // Handle other event types
-      else if (eventType === 'FAILED_TRANSACTION') {
-        console.log('Received failed transaction webhook:', eventData.paymentReference);
+  /**
+   * Handle virtual account credit (bank transfers to virtual accounts)
+   */
+  async function handleVirtualAccountCredit(eventData, res) {
+    try {
+      const accountNumber = eventData.destinationAccountInformation?.accountNumber;
+
+      if (!accountNumber) {
+        console.error('No destination account number in virtual account credit');
         return res.status(200).json({
-          status: 'success',
-          message: 'Failed transaction webhook processed'
+          status: 'error',
+          message: 'No destination account number'
         });
       }
 
-      // Handle unknown event types
-      else {
-        console.log('Received unknown Monnify event type:', eventType);
+      // Find virtual account by account number
+      const virtualAccount = await VirtualAccount.findOne({
+        'accounts.accountNumber': accountNumber
+      }).populate('user', 'email firstName username');
+
+      if (!virtualAccount) {
+        console.error('Virtual account not found for:', accountNumber);
+        return res.status(200).json({
+          status: 'error',
+          message: 'Virtual account not found',
+          processed: true
+        });
+      }
+
+      console.log('✅ Virtual account found for user:', virtualAccount.user._id);
+
+      // Check if transaction already exists
+      const existingTransaction = await Transaction.findOne({
+        reference: eventData.paymentReference
+      });
+
+      if (existingTransaction) {
+        console.log('Transaction already processed:', eventData.paymentReference);
         return res.status(200).json({
           status: 'success',
-          message: `Unknown event type: ${eventType}`
+          message: 'Transaction already processed',
+          transactionId: existingTransaction._id
         });
+      }
+
+      // Use PaymentService to handle virtual account credit
+      const creditResult = await PaymentService.handleVirtualAccountCredit({
+        amount: eventData.amountPaid,
+        reference: eventData.paymentReference,
+        accountNumber: accountNumber,
+        senderName: eventData.paymentSourceInformation?.[0]?.accountName || 'Unknown',
+        senderAccount: eventData.paymentSourceInformation?.[0]?.accountNumber,
+        senderBank: eventData.paymentSourceInformation?.[0]?.bankName
+      });
+
+      if (creditResult.success) {
+        console.log('✅ Virtual account credit successful');
+        return res.status(200).json({
+          status: 'success',
+          message: 'Virtual account credited successfully',
+          data: creditResult
+        });
+      } else {
+        throw new Error(creditResult.message || 'Failed to credit virtual account');
       }
 
     } catch (error) {
-      console.error('❌ Error processing Monnify webhook:', error);
-
-      // Always return 200 to prevent Monnify from retrying
+      console.error('❌ Error processing virtual account credit:', error);
       return res.status(200).json({
         status: 'error',
-        message: 'Error processing webhook',
+        message: 'Failed to process virtual account credit',
         error: error.message,
         processed: true
       });
     }
-  };
+  }
+
+  /**
+   * Handle regular payment (initiated through payment gateway)
+   */
+  async function handleRegularPayment(eventData, res) {
+    try {
+      // Find payment by reference
+      const payment = await Payment.findOne({
+        $or: [
+          { reference: eventData.paymentReference },
+          { gatewayReference: eventData.paymentReference }
+        ]
+      }).populate('user', 'email firstName username');
+
+      if (!payment) {
+        console.error('Payment not found for reference:', eventData.paymentReference);
+        return res.status(200).json({
+          status: 'error',
+          message: 'Payment not found',
+          processed: true
+        });
+      }
+
+      console.log('Payment found:', payment._id);
+
+      // Update payment status if not already successful
+      if (payment.status !== 'success') {
+        payment.status = 'success';
+        payment.gatewayResponse = {
+          ...payment.gatewayResponse,
+          webhook: eventData,
+          webhookProcessedAt: new Date()
+        };
+        payment.paidAt = new Date(eventData.paidOn);
+        payment.verifiedAt = new Date();
+        await payment.save();
+      }
+
+      // Credit wallet if not already credited
+      if (payment.status === 'success' && !payment.walletCredited) {
+        try {
+          await WalletService.creditWallet(
+              payment.user._id,
+              payment.amount,
+              'deposit',
+              payment.reference,
+              {
+                paymentId: payment._id,
+                gateway: 'monnify',
+                description: 'Wallet funding via Monnify (webhook)'
+              }
+          );
+
+          payment.walletCredited = true;
+          payment.walletCreditedAt = new Date();
+          await payment.save();
+
+          // Send email notification
+          const transactionCreated = await Transaction.findOne({
+            reference: payment.reference
+          });
+
+          if (transactionCreated && payment.user) {
+            try {
+              await sendTransactionNotificationEmail(transactionCreated, payment.user);
+              console.log('✅ Payment success email sent');
+            } catch (emailError) {
+              console.error('Error sending payment email:', emailError);
+            }
+          }
+
+        } catch (walletError) {
+          if (walletError.code === 11000 && walletError.keyPattern?.reference) {
+            console.log('Transaction already exists, marking as credited');
+            payment.walletCredited = true;
+            payment.walletCreditedAt = new Date();
+            await payment.save();
+          } else {
+            throw walletError;
+          }
+        }
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Regular payment processed successfully',
+        paymentId: payment._id
+      });
+
+    } catch (error) {
+      console.error('❌ Error processing regular payment:', error);
+      return res.status(200).json({
+        status: 'error',
+        message: 'Failed to process regular payment',
+        error: error.message,
+        processed: true
+      });
+    }
+  }
 
   /**
    * Enhanced payment webhook handler with email notifications

@@ -1,0 +1,247 @@
+const giftCardPurchaseTemplate = `<mjml>
+  <mj-head>
+    <mj-title>Gift Card Purchase Successful - {{appName}}</mj-title>
+    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></mj-font>
+    <mj-attributes>
+      <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#374151" line-height="26px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+    </mj-attributes>
+    <mj-style>
+      .status-success { color: #059669 !important; }
+      .amount-text { color: #059669 !important; font-weight: 600 !important; }
+      .table-header { color: #6B7280 !important; font-weight: 500 !important; }
+      .table-value { color: #111827 !important; font-weight: 500 !important; }
+      .gift-card-highlight { background: linear-gradient(135deg, #F3E8FF 0%, #E0E7FF 100%); border-left: 4px solid #8B5CF6; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#F9FAFB">
+    <!-- Header with Brand and Gift Card Logo -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column width="50%">
+        <mj-image width="160" src="{{appLogo}}" alt="{{appName}}" align="left"></mj-image>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-section padding="0">
+          <mj-column>
+            <mj-image width="80" height="80" src="{{giftCardImage}}" alt="{{giftCardBrand}}" align="right" border-radius="8px"></mj-image>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Status Hero Section -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-section background-color="#F0F9FF" border-radius="16px" padding="32px 24px">
+          <mj-column>
+            <mj-text align="center" font-size="32px" font-weight="700" color="#0369A1" padding="0">
+              🎁
+            </mj-text>
+            <mj-text align="center" font-size="28px" font-weight="700" color="#0369A1" padding="8px 0 0 0" line-height="36px">
+              Gift Card Purchased!
+            </mj-text>
+            <mj-text align="center" font-size="18px" color="#6B7280" padding="4px 0 0 0">
+              Your {{giftCardBrand}} gift card has been delivered
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content Card -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-section background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="16px" padding="32px 28px">
+          <mj-column>
+            <!-- Greeting -->
+            <mj-text font-size="20px" font-weight="600" color="#111827" padding="0 0 16px 0">
+              Hi {{firstName}},
+            </mj-text>
+
+            <!-- Status Message -->
+            <mj-text font-size="16px" color="#4B5563" padding="0 0 24px 0" line-height="26px">
+              Great news! Your gift card purchase has been completed successfully and {{#if isGift}}sent to the recipient{{else}}is ready for use{{/if}}. Here are the details:
+            </mj-text>
+
+            <!-- Gift Card Details -->
+            <mj-section css-class="gift-card-highlight" border-radius="12px" padding="24px 20px">
+              <mj-column>
+                <mj-text font-size="18px" font-weight="700" color="#7C3AED" padding="0 0 16px 0">
+                  🎁 Gift Card Details
+                </mj-text>
+
+                <!-- Brand & Product -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Brand</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="16px" font-weight="600" color="#7C3AED" padding="0">{{giftCardBrand}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Product Name -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Product</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">{{giftCardProduct}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Value & Quantity -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Value</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="16px" font-weight="600" color="#059669" padding="0">${{giftCardValueUSD}} {{#if giftCardQuantityDisplay}}x {{giftCardQuantity}}{{/if}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Total USD Value -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Total Value</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="18px" font-weight="700" color="#059669" padding="0">${{totalGiftCardValueUSD}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Recipient -->
+                <mj-section padding="12px 0 0 0" border-top="1px solid #E5E7EB">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">{{#if isGift}}Sent To{{else}}Recipient{{/if}}</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" font-weight="500" color="#7C3AED" padding="0">{{recipientEmail}}</mj-text>
+                  </mj-column>
+                </mj-section>
+              </mj-column>
+            </mj-section>
+
+            <!-- Transaction Details -->
+            <mj-section background-color="#F9FAFB" border-radius="12px" padding="24px 20px" margin="24px 0 0 0">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 16px 0">
+                  Payment Details
+                </mj-text>
+
+                <!-- Amount Charged -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Amount Charged</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="16px" css-class="amount-text" padding="0">₦{{amountCharged}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Transaction ID -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Transaction ID</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="12px" css-class="table-value" padding="0" font-family="monospace">{{transactionRef}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Date -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Date & Time</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">{{transactionDate}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Wallet Balance -->
+                <mj-section padding="12px 0 0 0" border-top="1px solid #E5E7EB">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Wallet Balance</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="16px" font-weight="600" color="#1F2937" padding="0">₦{{walletBalance}}</mj-text>
+                  </mj-column>
+                </mj-section>
+              </mj-column>
+            </mj-section>
+
+            <!-- Success Message -->
+            <mj-section background-color="#ECFDF5" border-left="4px solid #10B981" border-radius="8px" padding="16px 20px" margin="24px 0 0 0">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#065F46" padding="0 0 8px 0">
+                  🎉 Gift Card Delivered Successfully
+                </mj-text>
+                <mj-text font-size="14px" color="#047857" padding="0" line-height="22px">
+                  {{#if isGift}}Your gift has been sent to {{recipientEmail}} and they should receive it shortly!{{else}}Your gift card details have been sent to {{recipientEmail}} and should be available for use within 5-15 minutes.{{/if}}
+                </mj-text>
+              </mj-column>
+            </mj-section>
+
+            <!-- Action Buttons -->
+            <mj-section padding="32px 0 0 0">
+              <mj-column width="50%" padding="0 8px 0 0">
+                <mj-button
+                  background-color="#0369A1"
+                  color="#FFFFFF"
+                  font-weight="600"
+                  border-radius="8px"
+                  href="{{transactionHistoryUrl}}"
+                  inner-padding="16px 24px"
+                  font-size="14px"
+                  width="100%">
+                  View Transaction
+                </mj-button>
+              </mj-column>
+              <mj-column width="50%" padding="0 0 0 8px">
+                <mj-button
+                  background-color="#7C3AED"
+                  color="#FFFFFF"
+                  font-weight="600"
+                  border-radius="8px"
+                  href="{{buyMoreUrl}}"
+                  inner-padding="16px 24px"
+                  font-size="14px"
+                  width="100%">
+                  Buy More Cards
+                </mj-button>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Support Section -->
+    <mj-section background-color="#F9FAFB" padding="24px">
+      <mj-column>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding="0">
+          Need help with your gift card? Contact us anytime
+        </mj-text>
+        <mj-text align="center" font-size="14px" color="#374151" font-weight="500" padding="8px 0 0 0">
+          📧 <a href="mailto:support@hovapay.com" style="color: #0369A1; text-decoration: none;">support@hovapay.com</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#111827" padding="32px 24px">
+      <mj-column>
+        <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px">
+          This is an automated notification for your gift card purchase.
+          <br><br>
+          © 2025 {{appName}}. All rights reserved.
+          <br>
+          Secure • Fast • Global Gift Cards
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>`;

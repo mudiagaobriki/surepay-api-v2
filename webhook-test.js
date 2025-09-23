@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // ⚠️ CRITICAL: Update these with your actual credentials
-const BASE_URL = 'https://hovapay-api.onrender.com'; // Your API URL
+const BASE_URL = 'https://surepay-api-v2.onrender.com'; // Your API URL
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY || 'sk_test_your_actual_paystack_secret_key';
 const MONNIFY_SECRET = process.env.MONNIFY_SECRET_KEY || 'your_actual_monnify_secret_key';
 

@@ -6,7 +6,11 @@ const walletRouter = Router();
 const WalletController = WalletControllerFactory();
 
 // Public endpoints for payment processing
+// FIXED: Add specific route for Monnify webhooks (virtual accounts)
+walletRouter.post('/webhook/monnify', WalletController.monnifyWebhook);
+// Keep generic webhook for other gateways
 walletRouter.post('/webhook/:gateway?', WalletController.paymentWebhook);
+
 walletRouter.get('/callback', WalletController.paymentCallback);
 walletRouter.get('/banks/:gateway?', WalletController.listBanks);
 walletRouter.post('/debug/verify-signature', WalletController.debugSignatureVerification);

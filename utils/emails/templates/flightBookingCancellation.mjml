@@ -1,0 +1,226 @@
+<mjml>
+  <mj-head>
+    <mj-title>Flight Booking Cancelled - Hovapay</mj-title>
+    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></mj-font>
+    <mj-attributes>
+      <mj-all font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"></mj-all>
+      <mj-text font-weight="400" font-size="16px" color="#374151" line-height="26px"></mj-text>
+      <mj-section padding="0px"></mj-section>
+    </mj-attributes>
+    <mj-style>
+      .status-cancelled { color: #DC2626 !important; }
+      .amount-text { color: #DC2626 !important; font-weight: 600 !important; }
+      .refund-text { color: #059669 !important; font-weight: 600 !important; }
+      .table-header { color: #6B7280 !important; font-weight: 500 !important; }
+      .table-value { color: #111827 !important; font-weight: 500 !important; }
+    </mj-style>
+  </mj-head>
+
+  <mj-body background-color="#F9FAFB">
+    <!-- Header with Brand and Service Logo -->
+    <mj-section background-color="#FFFFFF" padding="32px 24px">
+      <mj-column width="50%">
+        <mj-image width="160" src="{{appLogo}}" alt="{{appName}}" align="left"></mj-image>
+      </mj-column>
+      <mj-column width="50%">
+        <mj-section padding="0">
+          <mj-column>
+            <mj-image width="80" height="80" src="{{serviceImage}}" alt="{{serviceName}}" align="right" border-radius="8px"></mj-image>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Cancellation Hero Section -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-section background-color="#FEF2F2" border-radius="16px" padding="32px 24px">
+          <mj-column>
+            <mj-text align="center" font-size="48px" color="#DC2626" padding="0">
+              ❌
+            </mj-text>
+            <mj-text align="center" font-size="32px" font-weight="700" color="#DC2626" padding="8px 0 0 0" line-height="40px">
+              Flight Booking Cancelled
+            </mj-text>
+            <mj-text align="center" font-size="18px" color="#6B7280" padding="4px 0 0 0">
+              Booking {{bookingReference}} has been successfully cancelled
+            </mj-text>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content Card -->
+    <mj-section background-color="#FFFFFF" padding="0 24px 32px 24px">
+      <mj-column>
+        <mj-section background-color="#FFFFFF" border="1px solid #E5E7EB" border-radius="16px" padding="32px 28px">
+          <mj-column>
+            <!-- Greeting -->
+            <mj-text font-size="20px" font-weight="600" color="#111827" padding="0 0 16px 0">
+              Hi {{firstName}},
+            </mj-text>
+
+            <!-- Cancellation Message -->
+            <mj-text font-size="16px" color="#4B5563" padding="0 0 24px 0" line-height="26px">
+              Your flight booking has been successfully cancelled. Here are the cancellation details:
+            </mj-text>
+
+            <!-- Cancellation Details -->
+            <mj-section background-color="#F9FAFB" border-radius="12px" padding="24px 20px">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#111827" padding="0 0 16px 0">
+                  Cancellation Details
+                </mj-text>
+
+                <!-- Booking Reference -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Booking Reference</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" font-weight="600" padding="0">{{bookingReference}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Original Amount -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Original Amount</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">₦{{amount}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Cancellation Fee -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Cancellation Fee</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="amount-text" padding="0">₦{{cancellationFee}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Refund Amount -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Refund Amount</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="16px" css-class="refund-text" padding="0">₦{{refundAmount}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Cancellation Reason -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Reason</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">{{cancellationReason}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Transaction ID -->
+                <mj-section padding="0 0 12px 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Transaction ID</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="12px" css-class="table-value" padding="0" font-family="monospace">{{transactionRef}}</mj-text>
+                  </mj-column>
+                </mj-section>
+
+                <!-- Cancellation Date -->
+                <mj-section padding="0 0 0 0">
+                  <mj-column width="40%">
+                    <mj-text font-size="14px" css-class="table-header" padding="0">Cancelled On</mj-text>
+                  </mj-column>
+                  <mj-column width="60%">
+                    <mj-text font-size="14px" css-class="table-value" padding="0">{{transactionDate}}</mj-text>
+                  </mj-column>
+                </mj-section>
+              </mj-column>
+            </mj-section>
+
+            <!-- Refund Information -->
+            {{#if (gt refundAmount 0)}}
+            <mj-section background-color="#ECFDF5" border-left="4px solid #10B981" border-radius="8px" padding="20px" margin="24px 0 0 0">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#065F46" padding="0 0 8px 0">
+                  💰 Refund Processing
+                </mj-text>
+                <mj-text font-size="14px" color="#047857" padding="0" line-height="22px">
+                  Your refund of <strong>₦{{refundAmount}}</strong> has been processed and will appear in your wallet within 24 hours.
+                </mj-text>
+              </mj-column>
+            </mj-section>
+            {{else}}
+            <mj-section background-color="#FFFBEB" border-left="4px solid #F59E0B" border-radius="8px" padding="20px" margin="24px 0 0 0">
+              <mj-column>
+                <mj-text font-size="16px" font-weight="600" color="#92400E" padding="0 0 8px 0">
+                  ⚠️ No Refund Available
+                </mj-text>
+                <mj-text font-size="14px" color="#78350F" padding="0" line-height="22px">
+                  Unfortunately, no refund is available for this cancellation due to the timing and fare conditions.
+                </mj-text>
+              </mj-column>
+            </mj-section>
+            {{/if}}
+
+            <!-- Status Message -->
+            <mj-section background-color="#FEF2F2" border-left="4px solid #EF4444" border-radius="8px" padding="16px 20px" margin="24px 0 0 0">
+              <mj-column>
+                <mj-text font-size="14px" color="#B91C1C" padding="0" line-height="22px">
+                  {{errorMessage}}
+                </mj-text>
+              </mj-column>
+            </mj-section>
+
+            <!-- Action Button -->
+            <mj-section padding="32px 0 0 0">
+              <mj-column>
+                <mj-button
+                  background-color="#6B7280"
+                  color="#FFFFFF"
+                  font-weight="600"
+                  border-radius="8px"
+                  href="{{transactionHistoryUrl}}"
+                  inner-padding="16px 32px"
+                  font-size="16px">
+                  View Transaction History
+                </mj-button>
+              </mj-column>
+            </mj-section>
+          </mj-column>
+        </mj-section>
+      </mj-column>
+    </mj-section>
+
+    <!-- Support Section -->
+    <mj-section background-color="#F9FAFB" padding="24px">
+      <mj-column>
+        <mj-text align="center" font-size="14px" color="#6B7280" padding="0">
+          Questions about your cancellation? We're here to help 24/7
+        </mj-text>
+        <mj-text align="center" font-size="14px" color="#374151" font-weight="500" padding="8px 0 0 0">
+          📧 <a href="mailto:support@hovapay.com" style="color: #059669; text-decoration: none;">support@hovapay.com</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#111827" padding="32px 24px">
+      <mj-column>
+        <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px">
+          This is an automated cancellation notification. Please do not reply to this email.
+          <br><br>
+          © 2025 {{appName}}. All rights reserved.
+          <br>
+          Secure • Fast • Reliable
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

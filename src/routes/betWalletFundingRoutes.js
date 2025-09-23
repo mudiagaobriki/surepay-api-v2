@@ -1,14 +1,13 @@
-// routes/betWalletFundingRoutes.js - Bet Wallet Funding Routes with 9JaPay
+// routes/betWalletFundingRoutes.js - Updated Bet Wallet Funding Routes with VTU Africa
 import express from 'express';
 import BetWalletFundingController from '../controller/BetWalletFundingController.js';
 import { authMiddleware } from '../middleware/auth.js';
-import smsRoute from "./smsRoute.js";
 
 const router = express.Router();
 
 // Initialize controller
 const {
-    // Bet Wallet Funding methods
+    // Bet Wallet Funding methods (VTU Africa)
     getSupportedBettingPlatforms,
     getPlatformFundingOptions,
     verifyBettingAccount,
@@ -17,139 +16,196 @@ const {
     getBetWalletFundingHistory,
     getPlatformStats,
 
+    // VTU Africa specific methods
+    testVTUAfricaConnection,
+    getVTUAfricaBalance,
+
     // Enhanced methods
     getEnhancedPaymentHistory
 } = BetWalletFundingController();
 
+// ==================== PUBLIC ROUTES ====================
 
-// Bet Wallet Funding public routes
-router.get('/bet-wallet/platforms', getSupportedBettingPlatforms);
-router.get('/bet-wallet/platforms/:platformId/funding-options', getPlatformFundingOptions);
+/**
+ * @route   GET /api/bet-wallet/platforms
+ * @desc    Get supported betting platforms from VTU Africa
+ * @access  Public
+ * @returns {
+ *   success: boolean,
+ *   data: {
+ *     platforms: Array<{
+ *       id: string,              // Platform identifier (e.g., 'bet9ja')
+ *       name: string,            // API service name
+ *       displayName: string,     // Display name
+ *       logo: string,            // Platform logo URL
+ *       minAmount: number,       // Minimum funding amount
+ *       maxAmount: number,       // Maximum funding amount
+ *       charge: number,          // VTU Africa service charge (₦30)
+ *       color: string,           // Brand color
+ *       website: string,         // Platform website
+ *       userIdLabel: string,     // Label for user ID field
+ *       userIdPlaceholder: string, // Placeholder text
+ *       status: string           // Platform status
+ *     }>,
+ *     meta: {
+ *       count: number,
+ *       defaultCharge: number,   // VTU Africa fixed charge
+ *       currency: string
+ *     }
+ *   }
+ * }
+ */
+router.get('/platforms', getSupportedBettingPlatforms);
+
+/**
+ * @route   GET /api/bet-wallet/platforms/:platformId/funding-options
+ * @desc    Get funding options for a specific betting platform (VTU Africa)
+ * @access  Public
+ * @param   platformId - Platform identifier (e.g., 'bet9ja', 'sportybet')
+ * @returns {
+ *   success: boolean,
+ *   data: {
+ *     platform: object,        // Platform details
+ *     fundingOptions: {
+ *       instant: {
+ *         name: string,
+ *         description: string,
+ *         processingTime: string,
+ *         charge: number       // VTU Africa charge
+ *       }
+ *     },
+ *     limits: {
+ *       min: number,           // Minimum amount
+ *       max: number            // Maximum amount
+ *     },
+ *     charges: {
+ *       fixed: number,         // Fixed charge (₦30)
+ *       description: string
+ *     }
+ *   }
+ * }
+ */
+router.get('/platforms/:platformId/funding-options', getPlatformFundingOptions);
+
+// ==================== ADMIN/DEVELOPMENT ROUTES ====================
+
+/**
+ * @route   GET /api/bet-wallet/test-vtu-africa
+ * @desc    Test VTU Africa API connection
+ * @access  Private (Development)
+ */
+router.get('/test-vtu-africa', authMiddleware, testVTUAfricaConnection);
+
+/**
+ * @route   GET /api/bet-wallet/vtu-africa-balance
+ * @desc    Get VTU Africa account balance
+ * @access  Private (Admin)
+ * @note    VTU Africa doesn't provide balance endpoint - returns info message
+ */
+router.get('/vtu-africa-balance', authMiddleware, getVTUAfricaBalance);
 
 // ==================== PROTECTED ROUTES (Authentication Required) ====================
 router.use(authMiddleware);
 
-// ==================== ORIGINAL BILL PAYMENT ROUTES ====================
+// ==================== BET WALLET FUNDING ROUTES (VTU AFRICA) ====================
 
 /**
- * @route   POST /api/bills/verify
- * @desc    Verify customer details for a service
+ * @route   POST /api/bet-wallet/verify-account
+ * @desc    Verify betting account for wallet funding (VTU Africa)
  * @access  Private
  * @body    {
- *   serviceID: string,      // Service identifier (e.g., 'ikeja-electric')
- *   billersCode: string,    // Customer identifier (meter number, account number, etc.)
- *   type?: string,          // Variation type for services with multiple options
- *   amount?: number         // Amount for services requiring amount validation
+ *   platform: string,           // 'bet9ja', 'sportybet', 'nairabet', 'betway', '1xbet', 'betking'
+ *   accountIdentifier: string,  // User ID for betting platform (3-50 chars)
+ *   customerPhone?: string      // Optional 11-digit phone number
  * }
- */
-// router.post('/verify', verifyCustomer);
-
-/**
- * @route   POST /api/bills/pay
- * @desc    Pay a bill
- * @access  Private
- * @body    {
- *   serviceID: string,      // Service identifier
- *   billersCode: string,    // Customer identifier
- *   variation_code?: string, // Variation code for services with options
- *   amount: number,         // Amount to pay
- *   phone: string,          // Customer phone number
- *   email?: string,         // Customer email (optional)
- *   customerName?: string,  // Customer name (optional)
- *   paymentMethod?: string  // 'wallet' or 'card' (default: 'wallet')
- * }
- */
-
-// ==================== BET WALLET FUNDING ROUTES ====================
-
-/**
- * @route   POST /api/bills/bet-wallet/verify-account
- * @desc    Verify betting account for wallet funding
- * @access  Private
- * @body    {
- *   platform: string,           // 'bet9ja', 'sportybet', 'nairabet', etc.
- *   accountIdentifier: string,  // Username, email, or account ID
- *   customerPhone?: string      // Optional phone for verification
- * }
- * @response {
+ * @returns {
  *   success: boolean,
  *   data: {
- *     accountName: string,
- *     accountId: string,
- *     platform: string,
- *     verified: boolean,
- *     minAmount: number,
- *     maxAmount: number
+ *     accountName: string,      // Generated account name
+ *     accountId: string,        // User ID
+ *     platform: string,         // Platform name
+ *     verified: boolean,        // Always true for VTU Africa
+ *     minAmount: number,        // 100
+ *     maxAmount: number,        // 100000
+ *     charge: number           // VTU Africa charge (30)
  *   }
  * }
  */
-router.post('/bet-wallet/verify-account', verifyBettingAccount);
+router.post('/verify-account', verifyBettingAccount);
 
 /**
- * @route   POST /api/bills/bet-wallet/fund
- * @desc    Fund a betting wallet using 9JaPay
+ * @route   POST /api/bet-wallet/fund
+ * @desc    Fund a betting wallet using VTU Africa
  * @access  Private
  * @body    {
- *   platform: string,           // 'bet9ja', 'sportybet', 'nairabet', etc.
- *   accountIdentifier: string,  // Username, email, or account ID
- *   accountName: string,        // Account holder name
- *   amount: number,             // Amount to fund (min: 100, max: 500,000)
- *   fundingType: string,        // 'instant', 'voucher', 'direct'
- *   paymentMethod?: string,     // Default: 'wallet'
- *   customerPhone?: string,     // Optional phone
- *   description?: string        // Optional description
+ *   platform: string,           // Betting platform
+ *   accountIdentifier: string,  // Platform user ID
+ *   accountName?: string,       // Optional account name
+ *   amount: number,             // Amount to fund (100-100000)
+ *   paymentMethod?: string,     // 'wallet' (default)
+ *   customerPhone?: string,     // Optional phone number
+ *   description?: string        // Optional description (max 200 chars)
  * }
- * @response {
+ * @returns {
  *   success: boolean,
  *   data: {
- *     transactionRef: string,
- *     platform: string,
- *     accountName: string,
- *     amount: number,
- *     status: string,
- *     fundingMethod: string,
- *     voucherCode?: string,     // If voucher funding
- *     instructions: string
+ *     transactionRef: string,         // Our transaction reference
+ *     platform: string,               // Platform name
+ *     accountName: string,            // Account name
+ *     accountIdentifier: string,      // User ID
+ *     fundingAmount: number,          // Amount sent to betting platform
+ *     serviceCharge: number,          // VTU Africa charge
+ *     totalAmountCharged: number,     // Total debited from wallet
+ *     status: string,                 // Transaction status
+ *     fundingMethod: string,          // 'vtu-africa-instant'
+ *     provider: string,               // 'VTU Africa'
+ *     vtAfricaReference: string,      // VTU Africa reference
+ *     message: string,                // Success message
+ *     estimatedDelivery: string       // '1-2 minutes'
  *   }
  * }
  */
-router.post('/bet-wallet/fund', fundBettingWallet);
+router.post('/fund', fundBettingWallet);
 
 /**
- * @route   GET /api/bills/bet-wallet/status/:transactionRef
- * @desc    Get bet wallet funding status
+ * @route   GET /api/bet-wallet/status/:transactionRef
+ * @desc    Get bet wallet funding status (VTU Africa)
  * @access  Private
- * @response {
+ * @param   transactionRef - Our transaction reference
+ * @returns {
  *   success: boolean,
  *   data: {
- *     transactionRef: string,
- *     platform: string,
- *     amount: number,
- *     status: string,
- *     fundingMethod: string,
- *     voucherCode?: string,
- *     instructions: string,
- *     canRetry: boolean,
- *     platformInfo: object,
- *     fundingInstructions: object
+ *     // Full BetWalletFunding object plus:
+ *     canRetry: boolean,              // Whether retry is allowed
+ *     platformInfo: object,           // Platform information
+ *     fundingInstructions: object,    // User instructions
+ *     provider: string,               // 'VTU Africa'
+ *     statusNote: string             // Note about VTU Africa processing
  *   }
  * }
  */
-router.get('/bet-wallet/status/:transactionRef', getBetWalletFundingStatus);
+router.get('/status/:transactionRef', getBetWalletFundingStatus);
 
 /**
- * @route   GET /api/bills/bet-wallet/history
- * @desc    Get user's bet wallet funding history
+ * @route   GET /api/bet-wallet/history
+ * @desc    Get user's bet wallet funding history (VTU Africa)
  * @access  Private
  * @query   {
  *   page?: number,      // Page number (default: 1)
  *   limit?: number,     // Results per page (default: 10)
  *   platform?: string  // Filter by platform
  * }
- * @response {
+ * @returns {
  *   success: boolean,
  *   data: {
- *     docs: Array,
+ *     docs: Array<{
+ *       // BetWalletFunding objects plus:
+ *       provider: string,           // 'VTU Africa'
+ *       serviceChargeInfo: {
+ *         charge: number,           // Service charge
+ *         description: string       // Charge description
+ *       }
+ *     }>,
  *     totalDocs: number,
  *     limit: number,
  *     page: number,
@@ -159,47 +215,81 @@ router.get('/bet-wallet/status/:transactionRef', getBetWalletFundingStatus);
  *   }
  * }
  */
-router.get('/bet-wallet/history', getBetWalletFundingHistory);
+router.get('/history', getBetWalletFundingHistory);
 
 /**
- * @route   GET /api/bills/bet-wallet/platforms/:platformId/stats
- * @desc    Get platform statistics and user's funding stats
+ * @route   GET /api/bet-wallet/platforms/:platformId/stats
+ * @desc    Get platform statistics and user's funding stats (VTU Africa)
  * @access  Private
- * @response {
+ * @param   platformId - Platform identifier
+ * @returns {
  *   success: boolean,
  *   data: {
- *     platform: object,     // Platform info (limits, fees, etc.)
+ *     platform: {
+ *       // Platform info plus:
+ *       provider: string,           // 'VTU Africa'
+ *       chargeDescription: string   // Charge info
+ *     },
  *     userStats: {
- *       totalFunded: number,
- *       totalTransactions: number,
- *       averageAmount: number,
- *       lastFunding: Date
+ *       totalFunded: number,        // Total amount funded
+ *       totalTransactions: number,  // Number of transactions
+ *       averageAmount: number,      // Average transaction
+ *       lastFunding: Date,          // Last funding date
+ *       totalCharges: number        // Total charges paid
  *     }
  *   }
  * }
  */
-router.get('/bet-wallet/platforms/:platformId/stats', getPlatformStats);
+router.get('/platforms/:platformId/stats', getPlatformStats);
 
 // ==================== ENHANCED FEATURES ====================
 
 /**
- * @route   GET /api/bills/bet-wallet/platforms/favorites
- * @desc    Get user's favorite betting platforms
+ * @route   GET /api/bet-wallet/enhanced-history
+ * @desc    Get enhanced payment history including bet wallet funding (VTU Africa)
  * @access  Private
- * @response {
+ * @query   {
+ *   page?: number,      // Page number
+ *   limit?: number,     // Results per page
+ *   serviceType?: string // Filter by service type
+ * }
+ * @returns {
+ *   success: boolean,
+ *   docs: Array,        // Mixed transaction types
+ *   totalDocs: number,
+ *   limit: number,
+ *   page: number,
+ *   totalPages: number,
+ *   hasNextPage: boolean,
+ *   hasPrevPage: boolean,
+ *   meta: {
+ *     provider: string,           // 'VTU Africa'
+ *     supportedPlatforms: Array   // Supported platforms
+ *   }
+ * }
+ */
+router.get('/enhanced-history', getEnhancedPaymentHistory);
+
+/**
+ * @route   GET /api/bet-wallet/platforms/favorites
+ * @desc    Get user's favorite betting platforms (VTU Africa)
+ * @access  Private
+ * @returns {
  *   success: boolean,
  *   data: Array<{
  *     platform: string,
- *     totalAmount: number,
+ *     totalFunded: number,
  *     totalTransactions: number,
- *     lastUsed: Date
+ *     totalCharges: number,
+ *     averageTransaction: number,
+ *     lastUsed: Date,
+ *     provider: string           // 'VTU Africa'
  *   }>
  * }
  */
-router.get('/bet-wallet/platforms/favorites', async (req, res) => {
+router.get('/platforms/favorites', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { BetWalletFunding } = require('../models/BetWalletFunding.js');
 
         const favorites = await BetWalletFunding.getFavoritePlatforms(userId, 5);
 
@@ -218,31 +308,34 @@ router.get('/bet-wallet/platforms/favorites', async (req, res) => {
 });
 
 /**
- * @route   GET /api/bills/bet-wallet/summary
- * @desc    Get user's betting wallet funding summary
+ * @route   GET /api/bet-wallet/summary
+ * @desc    Get user's betting wallet funding summary (VTU Africa)
  * @access  Private
- * @response {
+ * @returns {
  *   success: boolean,
  *   data: {
  *     totalFunded: number,
  *     totalTransactions: number,
+ *     totalCharges: number,
  *     favoritePlatform: string,
  *     monthlyStats: object,
- *     recentTransactions: Array
+ *     recentTransactions: Array,
+ *     provider: string
  *   }
  * }
  */
-router.get('/bet-wallet/summary', async (req, res) => {
+router.get('/summary', async (req, res) => {
     try {
         const userId = req.user.id;
-        const { BetWalletFunding } = require('../models/BetWalletFunding.js');
+        const mongoose = require('mongoose');
 
-        // Get overall stats
+        // Get overall stats (VTU Africa only)
         const overallStats = await BetWalletFunding.aggregate([
             {
                 $match: {
                     user: mongoose.Types.ObjectId(userId),
-                    status: 'completed'
+                    status: 'completed',
+                    provider: 'vtu-africa'
                 }
             },
             {
@@ -250,6 +343,7 @@ router.get('/bet-wallet/summary', async (req, res) => {
                     _id: null,
                     totalFunded: { $sum: '$amount' },
                     totalTransactions: { $sum: 1 },
+                    totalCharges: { $sum: '$serviceCharge' },
                     platforms: { $addToSet: '$platform' }
                 }
             }
@@ -262,6 +356,7 @@ router.get('/bet-wallet/summary', async (req, res) => {
                 $match: {
                     user: mongoose.Types.ObjectId(userId),
                     status: 'completed',
+                    provider: 'vtu-africa',
                     createdAt: { $gte: thirtyDaysAgo }
                 }
             },
@@ -269,7 +364,8 @@ router.get('/bet-wallet/summary', async (req, res) => {
                 $group: {
                     _id: null,
                     monthlyFunded: { $sum: '$amount' },
-                    monthlyTransactions: { $sum: 1 }
+                    monthlyTransactions: { $sum: 1 },
+                    monthlyCharges: { $sum: '$serviceCharge' }
                 }
             }
         ]);
@@ -279,22 +375,28 @@ router.get('/bet-wallet/summary', async (req, res) => {
 
         // Get recent transactions
         const recentTransactions = await BetWalletFunding.find({
-            user: userId
+            user: userId,
+            provider: 'vtu-africa'
         })
             .sort({ createdAt: -1 })
             .limit(5)
-            .select('platform amount status createdAt fundingType');
+            .select('platform amount serviceCharge totalAmountCharged status createdAt fundingType');
 
         const summary = {
             totalFunded: overallStats[0]?.totalFunded || 0,
             totalTransactions: overallStats[0]?.totalTransactions || 0,
+            totalCharges: overallStats[0]?.totalCharges || 0,
             totalPlatforms: overallStats[0]?.platforms?.length || 0,
             favoritePlatform: favorites[0]?.platform || null,
             monthlyStats: {
                 funded: monthlyStats[0]?.monthlyFunded || 0,
-                transactions: monthlyStats[0]?.monthlyTransactions || 0
+                transactions: monthlyStats[0]?.monthlyTransactions || 0,
+                charges: monthlyStats[0]?.monthlyCharges || 0
             },
-            recentTransactions
+            recentTransactions,
+            provider: 'VTU Africa',
+            averageCharge: overallStats[0]?.totalTransactions > 0 ?
+                (overallStats[0].totalCharges / overallStats[0].totalTransactions) : 30
         };
 
         res.status(200).json({
@@ -315,7 +417,7 @@ router.get('/bet-wallet/summary', async (req, res) => {
 
 // Global error handler for this router
 router.use((error, req, res, next) => {
-    console.error('Bet Wallet Funding Route Error:', {
+    console.error('VTU Africa Bet Wallet Funding Route Error:', {
         method: req.method,
         url: req.url,
         error: error.message,
@@ -342,7 +444,7 @@ router.use((error, req, res, next) => {
     if (error.code === 11000) {
         return res.status(400).json({
             success: false,
-            message: 'Duplicate entry detected'
+            message: 'Duplicate transaction reference detected'
         });
     }
 
@@ -359,15 +461,16 @@ router.use((error, req, res, next) => {
     if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
         return res.status(503).json({
             success: false,
-            message: 'Service temporarily unavailable. Please try again later.'
+            message: 'VTU Africa service temporarily unavailable. Please try again later.'
         });
     }
 
-    // 9JaPay API errors
-    if (error.message.includes('9JaPay') || error.message.includes('Wallet funding failed')) {
+    // VTU Africa API errors
+    if (error.message.includes('VTU Africa') || error.message.includes('Wallet funding failed')) {
         return res.status(502).json({
             success: false,
             message: 'Betting wallet funding service error. Please try again.',
+            provider: 'VTU Africa',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
@@ -376,6 +479,7 @@ router.use((error, req, res, next) => {
     res.status(error.status || 500).json({
         success: false,
         message: error.message || 'Internal server error',
+        provider: 'VTU Africa',
         ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
     });
 });

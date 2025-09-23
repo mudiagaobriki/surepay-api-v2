@@ -78,6 +78,44 @@ class TermiiSMSService {
     }
 
     /**
+     * Send SMS using Termii API with fallback sender IDs
+     */
+    async sendTermiiBulkSMS(to, message) {
+        // Try different sender ID options in order of preference
+        const senderOptions = [
+            { senderId: this.senderId, channel: this.channel }, // User's preferred sender
+            // { senderId: 'N-Alert', channel: 'generic' },        // Generic Termii sender
+            { senderId: 'Ojaway', channel: 'generic' },         // Termii default
+            { senderId: '', channel: 'generic' }                // No sender ID
+        ];
+
+        for (let i = 0; i < senderOptions.length; i++) {
+            const option = senderOptions[i];
+
+            try {
+                console.log(`Attempt ${i + 1}: Trying sender "${option.senderId}" with channel "${option.channel}"`);
+
+                const result = await this.sendBulkSMSWithOptions(to, message, option.senderId, option.channel);
+
+                if (result.success) {
+                    console.log(`✅ SMS sent successfully with sender: "${option.senderId}"`);
+                    return result;
+                }
+            } catch (error) {
+                console.log(`❌ Attempt ${i + 1} failed:`, error.message);
+
+                // If this is the last attempt, throw the error
+                if (i === senderOptions.length - 1) {
+                    throw error;
+                }
+
+                // Continue to next option
+                continue;
+            }
+        }
+    }
+
+    /**
      * Send SMS with specific sender ID and channel
      */
     async sendSMSWithOptions(to, message, senderId, channel) {
@@ -114,6 +152,85 @@ class TermiiSMSService {
             });
 
             const response = await axios.post(`${this.baseURL}/sms/send`, payload, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                timeout: 30000 // 30 seconds timeout
+            });
+
+            console.log('Termii SMS response:', response.data);
+
+            if (response.data.code === 'ok' || response.data.code === 200) {
+                return {
+                    success: true,
+                    messageId: response.data.message_id,
+                    data: response.data,
+                    usedSender: senderId,
+                    usedChannel: channel
+                };
+            } else {
+                throw new Error(response.data.message || `SMS sending failed with code: ${response.data.code}`);
+            }
+
+        } catch (error) {
+            console.error('Termii SMS error:', error.response?.data || error.message);
+
+            // Provide specific error messages for common issues
+            let errorMessage = error.response?.data?.message || error.message || 'Failed to send SMS';
+
+            if (errorMessage.includes('ApplicationSenderId not found')) {
+                errorMessage = `Sender ID "${senderId}" not registered. Trying alternative sender...`;
+            } else if (errorMessage.includes('Insufficient wallet balance')) {
+                errorMessage = 'Insufficient Termii account balance. Please top up your account.';
+            } else if (errorMessage.includes('Invalid phone number')) {
+                errorMessage = `Invalid phone number format: ${to}`;
+            }
+
+            throw new Error(errorMessage);
+        }
+    }
+
+    /**
+     * Send SMS with specific sender ID and channel
+     */
+    async sendBulkSMSWithOptions(to, message, senderIds, channel) {
+        try {
+            console.log('Sending Bulk SMS via Termii:', {
+                to,
+                message: message.substring(0, 50) + '...',
+                senderIds,
+                channel
+            });
+
+            // Format all the phone numbers (remove +234 or 0 prefix and add 234)
+            let formattedPhones = []
+            for (const phone of to){
+                const formattedPhone = this.formatPhoneNumber(phone);
+                formattedPhones.push(formattedPhone);
+            }
+
+            const payload = {
+                to: formattedPhones,
+                sms: message,
+                type: this.type,
+                channel: channel,
+                api_key: this.apiKey,
+            };
+
+            // Only add 'from' field if senderId is not empty
+            if (senderId && senderId.trim() !== '') {
+                payload.from = senderId;
+            }
+            else{
+                payload.from = "Ojaway";
+            }
+
+            console.log('Termii API payload:', {
+                ...payload,
+                api_key: '***' // Hide API key in logs
+            });
+
+            const response = await axios.post(`${this.baseURL}/sms/send/bulk`, payload, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

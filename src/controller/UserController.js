@@ -41,8 +41,14 @@ function UserController() {
         password: encryptedPassword,
       });
 
+      // const loginToken = jwt.sign(
+      //     { user_id: user._id, email },
+      //     process.env.JWT_SECRET,
+      //     { expiresIn: '2h' }
+      // );
+
       const loginToken = jwt.sign(
-          { user_id: user._id, email },
+          { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
           process.env.JWT_SECRET,
           { expiresIn: '2h' }
       );
@@ -190,8 +196,14 @@ function UserController() {
       }
 
       // Prepare successful login updates
+      // const loginToken = jwt.sign(
+      //     { user_id: user._id, email: user.email },
+      //     process.env.JWT_SECRET,
+      //     { expiresIn: '2h' }
+      // );
+
       const loginToken = jwt.sign(
-          { user_id: user._id, email: user.email },
+          { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
           process.env.JWT_SECRET,
           { expiresIn: '2h' }
       );
@@ -348,8 +360,14 @@ function UserController() {
       }
 
       // Generate login token
+      // const loginToken = jwt.sign(
+      //     { user_id: user._id, email: user.email },
+      //     process.env.JWT_SECRET,
+      //     { expiresIn: '2h' }
+      // );
+
       const loginToken = jwt.sign(
-          { user_id: user._id, email: user.email },
+          { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
           process.env.JWT_SECRET,
           { expiresIn: '2h' }
       );

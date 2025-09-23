@@ -69,7 +69,7 @@ class TwilioService {
      * @param {string} appName - Name of the application
      * @returns {Promise<Object>} - Response object
      */
-    async sendOTPSMS(phoneNumber, otp, appName = 'Surepay') {
+    async sendOTPSMS(phoneNumber, otp, appName = 'Hovapay') {
         const message = `Your ${appName} verification code is: ${otp}. This code will expire in 30 minutes. Do not share this code with anyone for security reasons.`;
 
         try {
@@ -88,7 +88,7 @@ class TwilioService {
      * @param {string} appName - Name of the application
      * @returns {Promise<Object>} - Response object
      */
-    async sendPasswordResetOTPSMS(phoneNumber, otp, appName = 'Surepay') {
+    async sendPasswordResetOTPSMS(phoneNumber, otp, appName = 'Hovapay') {
         const message = `${appName} Security Alert: Your password reset verification code is ${otp}. Valid for 30 minutes. If you didn't request this, please contact support immediately.`;
 
         try {
@@ -107,7 +107,7 @@ class TwilioService {
      * @param {string} appName - Name of the application
      * @returns {Promise<Object>} - Response object
      */
-    async sendAccountVerificationOTPSMS(phoneNumber, otp, appName = 'Surepay') {
+    async sendAccountVerificationOTPSMS(phoneNumber, otp, appName = 'Hovapay') {
         const message = `Welcome to ${appName}! Your phone verification code is: ${otp}. Enter this code to complete your account setup. Valid for 30 minutes.`;
 
         try {
@@ -126,7 +126,7 @@ class TwilioService {
      * @param {string} appName - Name of the application
      * @returns {Promise<Object>} - Response object
      */
-    async sendSecurityAlertSMS(phoneNumber, alertMessage, appName = 'Surepay') {
+    async sendSecurityAlertSMS(phoneNumber, alertMessage, appName = 'Hovapay') {
         const message = `${appName} Security Alert: ${alertMessage}. If this wasn't you, please secure your account immediately.`;
 
         try {

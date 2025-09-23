@@ -12,6 +12,7 @@ import {
 } from '../../utils/emails/sendEmails.js';
 import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
+import {termiiSMSService} from "../services/TermiiService.js";
 
 /**
  * Generate VTPass-compliant request_id
@@ -567,30 +568,44 @@ function BillPaymentController() {
       try {
         console.log('Initiating bulk SMS sending...');
 
-        // Prepare SMS payload
-        const smsPayload = {
-          request_id: transactionRef,
-          serviceID: 'bulk-sms',
-          amount: value.amount,
-          phone: recipientNumbers.join(','),
-          recipients: value.recipients,
-          message: value.message,
-          sender: value.sender
-        };
+        // use Termii to send instead of VT Pass for now
+        const result = await termiiSMSService.sendBulkSMSWithOptions(recipientNumbers.join(','), value.message)
 
-        // Process SMS with VTPass
-        const smsResponse = await VTPassService.payBill(smsPayload);
-        console.log('SMS response received:', {
-          responseCode: smsResponse.response_description || smsResponse.code,
-          hasContent: !!smsResponse.content,
-          hasSMSDetails: !!smsResponse.smsDetails
-        });
+        // // Prepare SMS payload
+        // const smsPayload = {
+        //   request_id: transactionRef,
+        //   serviceID: 'bulk-sms',
+        //   amount: value.amount,
+        //   phone: recipientNumbers.join(','),
+        //   recipients: value.recipients,
+        //   message: value.message,
+        //   sender: value.sender
+        // };
+        //
+        // // Process SMS with VTPass
+        // const smsResponse = await VTPassService.payBill(smsPayload);
+
+        if (result.success){
+          console.log('SMS response received:', result);
+        }
+        // console.log('SMS response received:', {
+        //   responseCode: smsResponse.response_description || smsResponse.code,
+        //   hasContent: !!smsResponse.content,
+        //   hasSMSDetails: !!smsResponse.smsDetails
+        // });
+
+        // // Update bill payment record
+        // billPayment.vtpassRef = smsResponse.purchased_code || smsResponse.batchId || transactionRef;
+        // const isSuccess = isVTPassPaymentSuccessful(smsResponse);
+        // billPayment.status = isSuccess ? 'completed' : 'failed';
+        // billPayment.responseData = smsResponse;
+        // await billPayment.save();
 
         // Update bill payment record
-        billPayment.vtpassRef = smsResponse.purchased_code || smsResponse.batchId || transactionRef;
-        const isSuccess = isVTPassPaymentSuccessful(smsResponse);
+        billPayment.vtpassRef = transactionRef;
+        const isSuccess = isVTPassPaymentSuccessful(result.success);
         billPayment.status = isSuccess ? 'completed' : 'failed';
-        billPayment.responseData = smsResponse;
+        billPayment.responseData = result;
         await billPayment.save();
 
         console.log('Bill payment status updated:', {
@@ -661,11 +676,12 @@ function BillPaymentController() {
             serviceID: 'bulk-sms',
             serviceType: 'sms',
             walletBalance: finalWalletBalance,
-            vtpassResponse: {
-              code: smsResponse.response_description || smsResponse.code,
-              message: smsResponse.content?.transactions?.status || 'Processing',
-              batchId: smsResponse.batchId || smsResponse.purchased_code
-            },
+            vtpassResponse: result,
+            // vtpassResponse: {
+            //   code: smsResponse.response_description || smsResponse.code,
+            //   message: smsResponse.content?.transactions?.status || 'Processing',
+            //   batchId: smsResponse.batchId || smsResponse.purchased_code
+            // },
             emailSent,
             notifications: {
               emailSent,
@@ -675,8 +691,9 @@ function BillPaymentController() {
               recipientCount,
               messageLength: value.message.length,
               totalUnits,
-              batchId: smsResponse.batchId,
-              sentDate: smsResponse.sentDate
+              // batchId: smsResponse.batchId,
+              // sentDate: smsResponse.sentDate
+              sentDate: new Date().toISOString(),
             }
           }
         });

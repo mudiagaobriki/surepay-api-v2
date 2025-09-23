@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const axios = require('axios');
 
-const BASE_URL = 'https://hovapay-api.onrender.com';
+const BASE_URL = 'https://surepay-api-v2.onrender.com';
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY || 'sk_test_your_actual_paystack_secret_key';
 
 async function testServerDebugEndpoint() {
