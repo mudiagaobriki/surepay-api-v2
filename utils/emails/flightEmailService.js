@@ -12,7 +12,7 @@ import path from 'path';
 class FlightEmailService {
     constructor() {
         this.fromAddress = process.env.FLIGHT_EMAIL_FROM || process.env.FROM_EMAIL;
-        this.fromName = process.env.FLIGHT_EMAIL_FROM_NAME || process.env.EMAIL_FROM_NAME || 'Hovapay Flights';
+        this.fromName = process.env.FLIGHT_EMAIL_FROM_NAME || process.env.EMAIL_FROM_NAME || 'Surepay Flights';
 
         // Single configuration object
         this.config = {
@@ -36,7 +36,7 @@ class FlightEmailService {
         await sendEmail(
             user.email,
             user.firstName || user.username || '',
-            process.env.APPLICATION_NAME || 'Hovapay',
+            process.env.APPLICATION_NAME || 'Surepay',
             `${this.fromName} <${this.fromAddress}>`,
             subject,
             '',
@@ -137,7 +137,7 @@ class FlightEmailService {
             })),
 
             transactionHistoryUrl: `${process.env.FRONT_END_URL}/transactions`,
-            appName: process.env.APPLICATION_NAME || 'Hovapay',
+            appName: process.env.APPLICATION_NAME || 'Surepay',
             appLogo: process.env.APP_LOGO_URL || `https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=${encodeURIComponent(process.env.APPLICATION_NAME || 'HOVAPAY')}`
         };
     }

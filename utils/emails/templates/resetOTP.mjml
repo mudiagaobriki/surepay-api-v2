@@ -20,7 +20,7 @@
     <!-- Header with Brand -->
     <mj-section background-color="#FFFFFF" padding="32px 24px">
       <mj-column>
-        <mj-image width="180" src="https://res.cloudinary.com/dwyzq40iu/image/upload/v1750095021/surepay-logo_l2jzxl.png" alt="Hovapay" align="left"></mj-image>
+        <mj-image width="180" src="https://res.cloudinary.com/dwyzq40iu/image/upload/v1750095021/surepay-logo_l2jzxl.png" alt="Surepay" align="left"></mj-image>
       </mj-column>
     </mj-section>
 

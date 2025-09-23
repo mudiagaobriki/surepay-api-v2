@@ -285,7 +285,7 @@
         <mj-section background-color="#FFFFFF" border-radius="12px" padding="24px" css-class="card-shadow">
           <mj-column>
             <mj-text align="center" font-size="16px" color="#374151" padding="0 0 12px 0">
-              📧 <a href="mailto:support@surepay.com" style="color: #059669; text-decoration: none; font-weight: 600;">support@hovapay.com</a>
+              📧 <a href="mailto:support@surepay.com" style="color: #059669; text-decoration: none; font-weight: 600;">support@surepay.com</a>
             </mj-text>
             <mj-text align="center" font-size="14px" color="#6B7280" padding="0">
               We typically respond within 30 minutes
@@ -314,9 +314,9 @@
         </mj-button>
 
         <mj-text align="center" font-size="16px" color="#6B7280" padding="24px 0 0 0" line-height="26px">
-          Thank you for choosing Hovapay!
+          Thank you for choosing Surepay!
           <br>
-          <span style="font-weight: 600; color: #111827;">The Hovapay Team</span>
+          <span style="font-weight: 600; color: #111827;">The Surepay Team</span>
         </mj-text>
       </mj-column>
     </mj-section>
@@ -325,10 +325,10 @@
     <mj-section background-color="#111827" padding="32px 24px">
       <mj-column>
         <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px" padding="0 0 16px 0">
-          This email was sent to {{email}} because you created a Hovapay account.
+          This email was sent to {{email}} because you created a Surepay account.
         </mj-text>
         <mj-text align="center" color="#6B7280" font-size="12px" line-height="20px">
-          © 2025 Hovapay. All rights reserved.
+          © 2025 Surepay. All rights reserved.
           <br><br>
           <span style="color: #059669;">Secure</span> • <span style="color: #059669;">Fast</span> • <span style="color: #059669;">Reliable</span>
           <br>

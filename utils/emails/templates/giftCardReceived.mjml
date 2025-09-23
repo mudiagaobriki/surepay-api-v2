@@ -168,7 +168,7 @@ const giftCardReceivedTemplate = `<mjml>
           Questions about your gift card? We're here to help!
         </mj-text>
         <mj-text align="center" font-size="14px" color="#374151" font-weight="500" padding="8px 0 0 0">
-          📧 <a href="mailto:support@hovapay.com" style="color: #0369A1; text-decoration: none;">support@hovapay.com</a>
+          📧 <a href="mailto:support@surepay.com" style="color: #0369A1; text-decoration: none;">support@surepay.com</a>
         </mj-text>
       </mj-column>
     </mj-section>

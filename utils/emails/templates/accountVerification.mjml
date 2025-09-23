@@ -20,7 +20,7 @@
     <!-- Header with Brand -->
     <mj-section background-color="#FFFFFF" padding="32px 24px">
       <mj-column>
-        <mj-image width="180" src="https://res.cloudinary.com/dwyzq40iu/image/upload/v1750095021/surepay-logo_l2jzxl.png" alt="Hovapay" align="left"></mj-image>
+        <mj-image width="180" src="https://res.cloudinary.com/dwyzq40iu/image/upload/v1750095021/surepay-logo_l2jzxl.png" alt="Surepay" align="left"></mj-image>
       </mj-column>
     </mj-section>
 
@@ -92,7 +92,7 @@
             <mj-text font-size="14px" color="#1E40AF" padding="0" line-height="22px">
               • This verification code will expire in <strong>30 minutes</strong><br>
               • For your security, never share this code with anyone<br>
-              • If you didn't create a Hovapay account, please ignore this email<br>
+              • If you didn't create a Surepay account, please ignore this email<br>
               • You can request a new code if this one expires
             </mj-text>
           </mj-column>
@@ -104,7 +104,7 @@
     <mj-section background-color="#F8FAFC" padding="40px 24px">
       <mj-column>
         <mj-text align="center" font-size="24px" font-weight="700" color="#111827" padding="0 0 32px 0">
-          What you can do with Hovapay
+          What you can do with Surepay
         </mj-text>
 
         <!-- Benefit 1 -->
@@ -156,7 +156,7 @@
         <mj-section background-color="#F9FAFB" border-radius="12px" padding="24px" css-class="card-shadow">
           <mj-column>
             <mj-text align="center" font-size="16px" color="#374151" padding="0 0 8px 0">
-              📧 <a href="mailto:support@hovapay.com" style="color: #10B981; text-decoration: none; font-weight: 600;">support@hovapay.com</a>
+              📧 <a href="mailto:support@surepay.com" style="color: #10B981; text-decoration: none; font-weight: 600;">support@surepay.com</a>
             </mj-text>
             <mj-text align="center" font-size="16px" color="#374151" padding="0 0 12px 0">
               📞 <a href="tel:+2348000000000" style="color: #10B981; text-decoration: none; font-weight: 600;">+234 800 000 0000</a>
@@ -173,13 +173,13 @@
     <mj-section background-color="#111827" padding="32px 24px">
       <mj-column>
         <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px" padding="0 0 16px 0">
-          This verification email was sent to {{email}} for your new Hovapay account.
+          This verification email was sent to {{email}} for your new Surepay account.
         </mj-text>
         <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px" padding="0 0 16px 0">
           Account created on {{requestDate}}
         </mj-text>
         <mj-text align="center" color="#6B7280" font-size="12px" line-height="20px">
-          © 2025 Hovapay. All rights reserved.
+          © 2025 Surepay. All rights reserved.
           <br><br>
           <span style="color: #10B981;">Fast</span> • <span style="color: #10B981;">Secure</span> • <span style="color: #10B981;">Reliable</span>
           <br>

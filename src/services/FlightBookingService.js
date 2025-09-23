@@ -495,7 +495,7 @@ class FlightBookingService {
                     remarks: {
                         general: [{
                             subType: 'GENERAL_MISCELLANEOUS',
-                            text: `Booking via ${process.env.APPLICATION_NAME || 'Hovapay'}`
+                            text: `Booking via ${process.env.APPLICATION_NAME || 'Surepay'}`
                         }]
                     },
                     ticketingAgreement: {

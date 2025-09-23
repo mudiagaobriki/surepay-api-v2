@@ -119,7 +119,7 @@ class VTPassService {
       'X-Token': this.publicKey,
       'X-Secret': this.secretKey,
       'Accept': 'application/json',
-      'User-Agent': 'Hovapay-SMS-Client/1.0'
+      'User-Agent': 'Surepay-SMS-Client/1.0'
     };
   }
 
@@ -1214,7 +1214,7 @@ class VTPassService {
   async processBulkSMSPayment(paymentData) {
     console.log('Processing bulk SMS payment with DND route...');
 
-    const { recipients, message, sender = 'Hovapay', amount } = paymentData;
+    const { recipients, message, sender = 'Surepay', amount } = paymentData;
 
     if (!recipients || !message) {
       throw new Error('Missing required SMS fields: recipients, message');
@@ -1405,7 +1405,7 @@ class VTPassService {
       const testSMS = {
         sender: 'TEST',
         recipients: '08011111111', // VTPass test number
-        message: 'Test message from Hovapay',
+        message: 'Test message from Surepay',
         responseType: 'json'
       };
 

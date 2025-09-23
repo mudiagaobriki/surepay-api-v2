@@ -432,7 +432,7 @@ function BillPaymentController() {
         sender: Joi.string()
             .max(11)
             .optional()
-            .default('Hovapay'),
+            .default('Surepay'),
         amount: Joi.number()
             .positive()
             .required(),
@@ -1163,14 +1163,14 @@ function BillPaymentController() {
             .map(num => num.trim())
             .filter(num => num && /^[0-9]{11}$/.test(num));
 
-        billersCode = value.sender || 'Hovapay'; // Use sender as billersCode
+        billersCode = value.sender || 'Surepay'; // Use sender as billersCode
         phone = `${recipientNumbers.length} recipients`; // Summary for phone field
 
         // Store SMS-specific data in additionalData for responseData
         additionalData = {
           recipients: value.recipients,
           message: value.message,
-          sender: value.sender || 'Hovapay',
+          sender: value.sender || 'Surepay',
           recipientCount: recipientNumbers.length,
           messageLength: value.message.length
         };
@@ -1226,7 +1226,7 @@ function BillPaymentController() {
         // Add SMS-specific fields for VTPass processing
         paymentPayload.recipients = value.recipients;
         paymentPayload.message = value.message;
-        paymentPayload.sender = value.sender || 'Hovapay';
+        paymentPayload.sender = value.sender || 'Surepay';
       } else if (value.serviceID === 'sms-units') {
         // Add units-specific fields
         paymentPayload.units = additionalData.units;

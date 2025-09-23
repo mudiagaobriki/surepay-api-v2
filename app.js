@@ -120,7 +120,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('X-Powered-By', 'Hovapay-API'); // Custom header
+  res.setHeader('X-Powered-By', 'Surepay-API'); // Custom header
 
   // For file uploads, allow larger content
   if (req.path.includes('/upload')) {
@@ -209,7 +209,7 @@ app.use("/api/v2/bills", enhancedBillPaymentRoute); // Version 2 API
 // Welcome route with authentication middleware
 app.get("/welcome", (req, res) => {
   res.status(200).json({
-    message: "Welcome to Hovapay API - Enhanced Edition",
+    message: "Welcome to Surepay API - Enhanced Edition",
     user: req.user || null,
     timestamp: new Date().toISOString(),
     features: [
@@ -225,7 +225,7 @@ app.get("/welcome", (req, res) => {
 // Enhanced API documentation endpoint
 app.get('/api/docs', (req, res) => {
   res.status(200).json({
-    message: "Hovapay API Documentation - Enhanced Edition",
+    message: "Surepay API Documentation - Enhanced Edition",
     version: "2.0.0",
     lastUpdated: new Date().toISOString(),
     endpoints: {
@@ -349,7 +349,7 @@ app.get('/api/docs', (req, res) => {
 // API root endpoint with service discovery
 app.get('/api', (req, res) => {
   res.status(200).json({
-    message: "Hovapay API - Enhanced Edition",
+    message: "Surepay API - Enhanced Edition",
     version: "2.0.0",
     status: "operational",
     documentation: "/api/docs",

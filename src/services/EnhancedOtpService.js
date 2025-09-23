@@ -71,8 +71,8 @@ class EnhancedOTPService {
 
             const templateName = purpose === 'password_reset' ? 'resetOTP' : 'resetOTP';
             const subject = purpose === 'password_reset'
-                ? '🔐 Hovapay Password Reset - Verification Required'
-                : '📱 Hovapay Account Verification - Enter Your Code';
+                ? '🔐 Surepay Password Reset - Verification Required'
+                : '📱 Surepay Account Verification - Enter Your Code';
 
             const html = await this.loadEmailTemplate(templateName, {
                 firstName: user.firstName || 'User',
@@ -87,15 +87,15 @@ class EnhancedOTPService {
                     timeZoneName: 'short'
                 }),
                 requestLocation: 'Nigeria',
-                appName: process.env.APPLICATION_NAME || 'Hovapay',
-                supportEmail: process.env.SUPPORT_EMAIL || 'support@hovapay.com'
+                appName: process.env.APPLICATION_NAME || 'Surepay',
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@surepay.com'
             });
 
             await sendEmail(
                 user.email,
                 user.firstName || '',
-                process.env.APPLICATION_NAME || 'Hovapay',
-                `${process.env.EMAIL_FROM_NAME || 'Hovapay'} <${process.env.FROM_EMAIL}>`,
+                process.env.APPLICATION_NAME || 'Surepay',
+                `${process.env.EMAIL_FROM_NAME || 'Surepay'} <${process.env.FROM_EMAIL}>`,
                 subject,
                 '',
                 html
@@ -132,16 +132,16 @@ class EnhancedOTPService {
             let message;
             switch (purpose) {
                 case 'password_reset':
-                    message = `Your Hovapay password reset code is ${otp}. Do not share this code with anyone. Valid for 30 minutes.`;
+                    message = `Your Surepay password reset code is ${otp}. Do not share this code with anyone. Valid for 30 minutes.`;
                     break;
                 case 'account_verification':
-                    message = `Welcome to Hovapay! Your verification code is ${otp}. Enter this code to verify your account. Valid for 30 minutes.`;
+                    message = `Welcome to Surepay! Your verification code is ${otp}. Enter this code to verify your account. Valid for 30 minutes.`;
                     break;
                 case 'transaction':
-                    message = `Your Hovapay transaction code is ${otp}. Do not share this code with anyone. Valid for 10 minutes.`;
+                    message = `Your Surepay transaction code is ${otp}. Do not share this code with anyone. Valid for 10 minutes.`;
                     break;
                 default:
-                    message = `Your Hovapay verification code is ${otp}. Do not share this code with anyone. Valid for 30 minutes.`;
+                    message = `Your Surepay verification code is ${otp}. Do not share this code with anyone. Valid for 30 minutes.`;
             }
 
             const result = await termiiSMSService.sendSMS(user.phone, message);

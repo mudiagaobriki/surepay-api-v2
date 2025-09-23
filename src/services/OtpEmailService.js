@@ -53,16 +53,16 @@ class OTPEmailService {
                     timeZoneName: 'short'
                 }),
                 requestLocation: 'Nigeria',
-                appName: process.env.APPLICATION_NAME || 'Hovapay',
-                supportEmail: process.env.SUPPORT_EMAIL || 'support@hovapay.com'
+                appName: process.env.APPLICATION_NAME || 'Surepay',
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@surepay.com'
             });
 
             await sendEmail(
                 user.email,
                 user.firstName || '',
-                process.env.APPLICATION_NAME || 'Hovapay',
-                `${process.env.EMAIL_FROM_NAME || 'Hovapay'} <${process.env.FROM_EMAIL}>`,
-                '🔐 Hovapay Password Reset - Verification Required',
+                process.env.APPLICATION_NAME || 'Surepay',
+                `${process.env.EMAIL_FROM_NAME || 'Surepay'} <${process.env.FROM_EMAIL}>`,
+                '🔐 Surepay Password Reset - Verification Required',
                 '',
                 html
             );
@@ -97,16 +97,16 @@ class OTPEmailService {
                     minute: '2-digit',
                     timeZoneName: 'short'
                 }),
-                appName: process.env.APPLICATION_NAME || 'Hovapay',
-                supportEmail: process.env.SUPPORT_EMAIL || 'support@hovapay.com'
+                appName: process.env.APPLICATION_NAME || 'Surepay',
+                supportEmail: process.env.SUPPORT_EMAIL || 'support@surepay.com'
             });
 
             await sendEmail(
                 user.email,
                 user.firstName || '',
-                process.env.APPLICATION_NAME || 'Hovapay',
-                `${process.env.EMAIL_FROM_NAME || 'Hovapay'} <${process.env.FROM_EMAIL}>`,
-                '📱 Hovapay Account Verification - Enter Your Code',
+                process.env.APPLICATION_NAME || 'Surepay',
+                `${process.env.EMAIL_FROM_NAME || 'Surepay'} <${process.env.FROM_EMAIL}>`,
+                '📱 Surepay Account Verification - Enter Your Code',
                 '',
                 html
             );

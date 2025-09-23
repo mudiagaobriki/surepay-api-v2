@@ -21,12 +21,12 @@ export const sendVerificationEmail = async (
     const verifyUrl = `/email/verify/${Buffer.from(verificationToken).toString('base64')}`;
     const verificationUrl = `${process.env.FRONT_END_URL}${verifyUrl}`;
 
-    // Read the Hovapay welcome email template
+    // Read the Surepay welcome email template
     const source = fs.readFileSync('./utils/emails/templates/hovapayWelcome.mjml', 'utf8');
     const { html: htmlOutput } = mjml2html(source);
     const template = Handlebars.compile(htmlOutput);
 
-    // Prepare template data with Hovapay branding
+    // Prepare template data with Surepay branding
     const templateData = {
       firstName: firstName || 'Valued Customer',
       email,
@@ -59,11 +59,11 @@ export const sendVerificationEmail = async (
         template(templateData)
     );
 
-    console.log('Hovapay welcome email sent successfully to:', email);
+    console.log('Surepay welcome email sent successfully to:', email);
     return true;
 
   } catch (error) {
-    console.error('Error sending Hovapay welcome email:', error);
+    console.error('Error sending Surepay welcome email:', error);
     throw new Error('Failed to send welcome email: ' + error.message);
   }
 };
@@ -198,7 +198,7 @@ export const sendBillPaymentEmail = async (paymentData, user, isSuccess, additio
       // URLs
       transactionHistoryUrl: `${process.env.FRONT_END_URL}/transactions`,
       retryUrl: `${process.env.FRONT_END_URL}/bills`,
-      appName: process.env.APPLICATION_NAME || 'Hovapay',
+      appName: process.env.APPLICATION_NAME || 'Surepay',
       appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=' + encodeURIComponent(process.env.APPLICATION_NAME || 'HOVAPAY')
     };
 
@@ -220,8 +220,8 @@ export const sendBillPaymentEmail = async (paymentData, user, isSuccess, additio
     await sendEmail(
         user.email,
         user.firstName || user.username || '',
-        process.env.APPLICATION_NAME || 'Hovapay',
-        `${process.env.EMAIL_FROM_NAME || 'Hovapay'} <${process.env.FROM_EMAIL}>`,
+        process.env.APPLICATION_NAME || 'Surepay',
+        `${process.env.EMAIL_FROM_NAME || 'Surepay'} <${process.env.FROM_EMAIL}>`,
         subject,
         '', // Text part (empty since we're using HTML)
         template(templateData)

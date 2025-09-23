@@ -19,7 +19,7 @@
     <!-- Header with Surepay Logo Only -->
     <mj-section background-color="#FFFFFF" padding="32px 24px">
       <mj-column>
-        <mj-image width="180" src="{{appLogo}}" alt="Hovapay" align="center"></mj-image>
+        <mj-image width="180" src="{{appLogo}}" alt="Surepay" align="center"></mj-image>
       </mj-column>
     </mj-section>
 
@@ -57,7 +57,7 @@
 
             <!-- Success Message -->
             <mj-text font-size="16px" color="#4B5563" padding="0 0 24px 0" line-height="26px">
-              Great news! Your wallet has been successfully funded. The money is now available for use on all Hovapay services.
+              Great news! Your wallet has been successfully funded. The money is now available for use on all Surepay services.
             </mj-text>
 
             <!-- Transaction Details -->
@@ -189,7 +189,7 @@
           Need assistance? We're here to help 24/7
         </mj-text>
         <mj-text align="center" font-size="14px" color="#374151" font-weight="500" padding="8px 0 0 0">
-          📧 <a href="mailto:support@hovapay.com" style="color: #059669; text-decoration: none;">support@hovapay.com</a>
+          📧 <a href="mailto:support@surepay.com" style="color: #059669; text-decoration: none;">support@surepay.com</a>
           &nbsp;&nbsp;|&nbsp;&nbsp;
           📞 <a href="tel:+2341234567890" style="color: #059669; text-decoration: none;">+234 123 456 7890</a>
         </mj-text>
@@ -202,7 +202,7 @@
         <mj-text align="center" color="#9CA3AF" font-size="12px" line-height="20px">
           This is an automated notification. Please do not reply to this email.
           <br><br>
-          © 2025 Hovapay. All rights reserved.
+          © 2025 Surepay. All rights reserved.
           <br>
           Secure • Fast • Reliable
         </mj-text>
