@@ -31,9 +31,9 @@ export const sendVerificationEmail = async (
       firstName: firstName || 'Valued Customer',
       email,
       url: verificationUrl,
-      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=HOVAPAY',
+      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=Surepay',
       appName: 'Surepay',
-      supportEmail: process.env.SUPPORT_EMAIL || 'support@surepay.com',
+      supportEmail: process.env.SUPPORT_EMAIL || 'support@Surepay.com',
       // Add app store links if you have mobile apps
       googlePlayUrl: process.env.GOOGLE_PLAY_BADGE_URL || '',
       googlePlayLink: process.env.GOOGLE_PLAY_LINK || '',
@@ -199,7 +199,7 @@ export const sendBillPaymentEmail = async (paymentData, user, isSuccess, additio
       transactionHistoryUrl: `${process.env.FRONT_END_URL}/transactions`,
       retryUrl: `${process.env.FRONT_END_URL}/bills`,
       appName: process.env.APPLICATION_NAME || 'Surepay',
-      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=' + encodeURIComponent(process.env.APPLICATION_NAME || 'HOVAPAY')
+      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=' + encodeURIComponent(process.env.APPLICATION_NAME || 'Surepay')
     };
 
     console.log('Template data prepared:', {
@@ -380,18 +380,69 @@ function formatAmount(amount) {
 
 /**
  * Send transaction history update email (for wallet transactions)
- * @param {Object} transaction - Transaction data
+ * @param {Object} transactionData - Transaction data
  * @param {Object} user - User data
  */
-export const sendTransactionNotificationEmail = async (transaction, user) => {
+export const sendTransactionNotificationEmail = async (transactionData, user, options = {}) => {
   try {
     console.log('Sending transaction notification email:', {
       email: user.email,
-      type: transaction.type,
-      amount: transaction.amount
+      type: transactionData.type || transactionData.serviceType,
+      amount: transactionData.amount,
+      serviceType: transactionData.serviceType
     });
 
-    // For wallet transactions, use a simpler template or reuse the bill payment template
+    // Handle gift card transactions
+    if (transactionData.serviceType === 'gift_card') {
+      return await sendGiftCardNotificationEmail(
+          {
+            brand: transactionData.serviceName || transactionData.brand || 'Gift Card',
+            productName: transactionData.productName || transactionData.serviceName || 'Digital Gift Card',
+            unitPriceUSD: transactionData.unitPriceUSD || transactionData.giftCardDetails?.unitPriceUSD || 25,
+            quantity: transactionData.quantity || transactionData.giftCardDetails?.quantity || 1,
+            totalValueUSD: transactionData.totalAmountUSD || transactionData.giftCardDetails?.totalAmountUSD || transactionData.unitPriceUSD || 25,
+            totalAmountNGN: transactionData.amount,
+            recipientEmail: transactionData.recipientEmail || transactionData.giftCardDetails?.recipientEmail || user.email,
+            senderName: transactionData.senderName || transactionData.giftCardDetails?.senderName || user.firstName || user.username,
+            personalMessage: transactionData.personalMessage || transactionData.giftCardDetails?.personalMessage,
+            isGift: transactionData.isGift || transactionData.giftCardDetails?.isGift || false,
+            transactionRef: transactionData.transactionRef || transactionData.reference
+          },
+          user,
+          {
+            walletBalance: options.walletBalance,
+            isRecipientEmail: options.type === 'gift_card_received'
+          }
+      );
+    }
+
+    // Handle bill payment transactions
+    if (transactionData.serviceType && transactionData.serviceType !== 'gift_card' &&
+        ['airtime', 'data', 'cable', 'electricity', 'education', 'insurance'].includes(transactionData.serviceType)) {
+
+      const isSuccess = transactionData.status === 'completed' || transactionData.status === 'successful';
+
+      return await sendBillPaymentEmail(
+          {
+            serviceType: transactionData.serviceType,
+            serviceID: transactionData.serviceID,
+            amount: transactionData.amount,
+            phone: transactionData.phone,
+            billersCode: transactionData.billersCode || transactionData.customerID,
+            transactionRef: transactionData.transactionRef || transactionData.reference
+          },
+          user,
+          isSuccess,
+          {
+            walletBalance: options.walletBalance,
+            vtpassMessage: transactionData.responseData?.response_description_text,
+            errorMessage: transactionData.errorDetails?.error || transactionData.responseData?.error
+          }
+      );
+    }
+
+    // Handle wallet transactions (your existing logic)
+    const transaction = transactionData; // For backward compatibility
     const isCredit = transaction.amount > 0;
     const transactionType = formatTransactionType(transaction.type);
 
@@ -403,7 +454,7 @@ export const sendTransactionNotificationEmail = async (transaction, user) => {
       serviceName: `Wallet ${isCredit ? 'Credit' : 'Debit'}`,
       serviceImage: `https://via.placeholder.com/200x150/${isCredit ? '28a745' : 'dc3545'}/FFFFFF?text=WALLET`,
       amount: formatAmount(Math.abs(transaction.amount)),
-      transactionRef: transaction.reference,
+      transactionRef: transaction.reference || transaction.transactionRef,
       transactionDate: new Date(transaction.createdAt).toLocaleString('en-NG', {
         year: 'numeric',
         month: 'long',
@@ -413,10 +464,10 @@ export const sendTransactionNotificationEmail = async (transaction, user) => {
         hour12: true,
         timeZone: 'Africa/Lagos'
       }),
-      walletBalance: formatAmount(transaction.balanceAfter),
+      walletBalance: formatAmount(transaction.balanceAfter || options.walletBalance || 0),
       transactionHistoryUrl: `${process.env.FRONT_END_URL}/transactions`,
-      appName: process.env.APPLICATION_NAME || 'Your App',
-      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=' + encodeURIComponent(process.env.APPLICATION_NAME || 'YOUR APP')
+      appName: process.env.APPLICATION_NAME || 'Surepay',
+      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=' + encodeURIComponent(process.env.APPLICATION_NAME || 'Surepay')
     };
 
     const subject = isCredit
@@ -424,7 +475,6 @@ export const sendTransactionNotificationEmail = async (transaction, user) => {
         : `💸 Wallet Debited - ₦${formatAmount(Math.abs(transaction.amount))}`;
 
     // Read template and send email
-    // const templatePath = path.resolve('./utils/emails/templates/billPayment.mjml');
     const templatePath = path.resolve('./utils/emails/templates/walletFunded.mjml');
     const source = fs.readFileSync(templatePath, 'utf8');
     const { html: htmlOutput } = mjml2html(source);
@@ -433,7 +483,7 @@ export const sendTransactionNotificationEmail = async (transaction, user) => {
     await sendEmail(
         user.email,
         user.firstName || user.username || '',
-        process.env.APPLICATION_NAME || 'Wallet Service',
+        process.env.APPLICATION_NAME || 'Surepay',
         `${process.env.EMAIL_FROM_NAME} <${process.env.FROM_EMAIL}>`,
         subject,
         '',
@@ -448,6 +498,185 @@ export const sendTransactionNotificationEmail = async (transaction, user) => {
     throw new Error('Failed to send transaction notification email: ' + error.message);
   }
 };
+
+export const sendGiftCardNotificationEmail = async (giftCardData, user, options = {}) => {
+  try {
+    console.log('=== SENDING GIFT CARD NOTIFICATION EMAIL ===');
+    console.log('Email parameters:', {
+      userEmail: user.email,
+      isRecipientEmail: options.isRecipientEmail,
+      giftCardBrand: giftCardData.brand,
+      totalValueUSD: giftCardData.totalValueUSD,
+      transactionRef: giftCardData.transactionRef,
+      emailType: options.type
+    });
+
+    // Validate required data
+    if (!user.email) {
+      throw new Error('User email is required');
+    }
+
+    if (!giftCardData.brand) {
+      throw new Error('Gift card brand is required');
+    }
+
+    // Choose template based on email type
+    const templateName = options.isRecipientEmail ? 'giftCardReceived.mjml' : 'giftCardPurchase.mjml';
+    const templatePath = path.resolve(`./utils/emails/templates/${templateName}`);
+
+    console.log('Template path:', templatePath);
+
+    // For now, if template doesn't exist, use bill payment template as fallback
+    let source;
+    let usingFallback = false;
+    try {
+      source = fs.readFileSync(templatePath, 'utf8');
+      console.log('Using custom gift card template:', templateName);
+    } catch (err) {
+      console.log(`Gift card template ${templateName} not found, using bill payment template as fallback`);
+      const fallbackPath = path.resolve('./utils/emails/templates/billPaymentSuccess.mjml');
+      source = fs.readFileSync(fallbackPath, 'utf8');
+      usingFallback = true;
+    }
+
+    const { html: htmlOutput } = mjml2html(source);
+    const template = Handlebars.compile(htmlOutput);
+
+    // Get gift card brand image
+    const giftCardImage = getGiftCardBrandImage(giftCardData.brand);
+
+    // Format transaction date
+    const transactionDate = new Date().toLocaleString('en-NG', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Africa/Lagos'
+    });
+
+    // Prepare template data compatible with existing templates
+    const templateData = {
+      // User info
+      firstName: user.firstName || user.username || 'Customer',
+
+      // Service details (formatted for existing bill payment template)
+      serviceType: options.isRecipientEmail ? 'Gift Card Received' : 'Gift Card Purchase',
+      serviceName: `${giftCardData.brand} Gift Card`,
+      serviceImage: giftCardImage,
+
+      // Amount details
+      amount: formatAmount(giftCardData.totalAmountNGN),
+
+      // Transaction details
+      transactionRef: giftCardData.transactionRef,
+      transactionDate,
+      phone: '', // Not applicable for gift cards
+      billersCode: giftCardData.recipientEmail, // Use recipient email as identifier
+
+      // Wallet info
+      walletBalance: options.walletBalance ? formatAmount(options.walletBalance) : null,
+
+      // Gift card specific data (for custom templates when available)
+      giftCardBrand: giftCardData.brand,
+      giftCardProduct: giftCardData.productName,
+      giftCardValueUSD: giftCardData.unitPriceUSD,
+      giftCardQuantity: giftCardData.quantity,
+      giftCardQuantityDisplay: giftCardData.quantity > 1,
+      totalGiftCardValueUSD: giftCardData.totalValueUSD,
+      giftCardImage,
+      recipientEmail: giftCardData.recipientEmail,
+      isGift: giftCardData.isGift,
+      senderName: giftCardData.senderName,
+      personalMessage: giftCardData.personalMessage,
+      amountCharged: formatAmount(giftCardData.totalAmountNGN),
+
+      // URLs
+      transactionHistoryUrl: `${process.env.FRONT_END_URL}/transactions`,
+      buyMoreUrl: `${process.env.FRONT_END_URL}/bills/gift-cards`,
+      retryUrl: `${process.env.FRONT_END_URL}/bills/gift-cards`,
+
+      // App branding
+      appName: process.env.APPLICATION_NAME || 'Surepay',
+      appLogo: process.env.APP_LOGO_URL || 'https://via.placeholder.com/350x100/0b3d6f/FFFFFF?text=' + encodeURIComponent(process.env.APPLICATION_NAME || 'Surepay')
+    };
+
+    console.log('Template data prepared:', {
+      templateUsed: templateName,
+      usingFallback,
+      firstName: templateData.firstName,
+      serviceName: templateData.serviceName,
+      amount: templateData.amount,
+      recipientEmail: templateData.recipientEmail,
+      isRecipient: options.isRecipientEmail
+    });
+
+    // Determine email subject
+    const subject = options.isRecipientEmail
+        ? `🎁 You've received a ${giftCardData.brand} Gift Card worth $${giftCardData.totalValueUSD}!`
+        : `✅ Gift Card Purchase Successful - ${giftCardData.brand} ($${giftCardData.totalValueUSD})`;
+
+    console.log('Email subject:', subject);
+    console.log('Sending to:', user.email);
+
+    // Validate email configuration
+    if (!process.env.FROM_EMAIL) {
+      throw new Error('FROM_EMAIL environment variable not set');
+    }
+
+    // Send email
+    const emailResult = await sendEmail(
+        user.email,
+        user.firstName || user.username || '',
+        process.env.APPLICATION_NAME || 'Surepay',
+        `${process.env.EMAIL_FROM_NAME || 'Surepay'} <${process.env.FROM_EMAIL}>`,
+        subject,
+        '', // Text part (empty since we're using HTML)
+        template(templateData)
+    );
+
+    console.log('Email send result:', emailResult);
+    console.log('=== GIFT CARD EMAIL SENT SUCCESSFULLY ===');
+    console.log('Sent to:', user.email, 'Type:', options.isRecipientEmail ? 'RECIPIENT' : 'PURCHASER');
+    return true;
+
+  } catch (error) {
+    console.error('=== ERROR SENDING GIFT CARD EMAIL ===');
+    console.error('Error details:', error);
+    console.error('Stack trace:', error.stack);
+    throw new Error('Failed to send gift card email: ' + error.message);
+  }
+};
+
+/**
+ * Get gift card brand image URL
+ */
+function getGiftCardBrandImage(brand) {
+  const brandImages = {
+    'amazon': 'https://via.placeholder.com/200x150/FF9900/FFFFFF?text=AMAZON',
+    'itunes': 'https://via.placeholder.com/200x150/000000/FFFFFF?text=ITUNES',
+    'google play': 'https://via.placeholder.com/200x150/34A853/FFFFFF?text=GOOGLE+PLAY',
+    'visa': 'https://via.placeholder.com/200x150/1434CB/FFFFFF?text=VISA',
+    'mastercard': 'https://via.placeholder.com/200x150/EB001B/FFFFFF?text=MASTERCARD',
+    'steam': 'https://via.placeholder.com/200x150/1B2838/FFFFFF?text=STEAM',
+    'xbox': 'https://via.placeholder.com/200x150/107C10/FFFFFF?text=XBOX',
+    'netflix': 'https://via.placeholder.com/200x150/E50914/FFFFFF?text=NETFLIX',
+  };
+
+  const brandLower = brand.toLowerCase();
+
+  // Check for exact or partial matches
+  for (const [key, value] of Object.entries(brandImages)) {
+    if (brandLower.includes(key) || key.includes(brandLower)) {
+      return value;
+    }
+  }
+
+  // Default fallback
+  const encodedBrand = encodeURIComponent(brand.toUpperCase());
+  return `https://via.placeholder.com/200x150/8B5CF6/FFFFFF?text=${encodedBrand}`;
+}
 
 /**
  * Format transaction type for display

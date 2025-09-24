@@ -6,6 +6,10 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { initSentry, addSentryErrorHandler } from "./config/sentry.js";
 import { handleMulterError } from "./config/multer.js";
+import http from 'http';
+import { Server } from 'socket.io';
+import jwt from 'jsonwebtoken';
+import Chat from './src/models/Chat.js';
 
 // Import existing routes
 import userRoute from "./src/routes/userRoute.js";
@@ -15,10 +19,14 @@ import whatsappRoute from "./src/routes/whatsappRoute.js";
 import messageRoute from "./src/routes/messagesRoute.js";
 import walletRoute from "./src/routes/walletRoutes.js";
 import betWalletFundingRoute from "./src/routes/betWalletFundingRoutes.js";
+import chatRoute from './src/routes/chatRoute.js';
+import smsRoute from './src/routes/smsRoute.js';
 
 // Import enhanced bill payment routes
 import billPaymentRoute from "./src/routes/billPaymentRoutes.js";
 import enhancedBillPaymentRoute from "./src/routes/enhancedBillPaymentRoute.js";
+import giftCardRoute from "./src/routes/giftCardRoutes.js";
+import flightRoutes from './src/routes/flightBookingRoutes.js';
 
 // Import enhanced middleware
 // import { rateLimitMiddleware, globalRateLimit } from "./src/middleware/rateLimit.js";
@@ -166,7 +174,8 @@ app.get('/status', async (req, res) => {
       vtpass: 'checking',
       sportsBetting: 'checking',
       flightBooking: 'checking',
-      internationalAirtime: 'checking'
+      internationalAirtime: 'checking',
+      giftCards: 'checking'
     };
 
     // Add service health checks here
@@ -198,6 +207,8 @@ app.use("/api/whatsapp", whatsappRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/wallet", walletRoute);
 app.use("/api/bet", betWalletFundingRoute);
+app.use("/api/chat", chatRoute);
+app.use("/api/sms", smsRoute);
 
 // Enhanced bill payment routes with backward compatibility
 app.use("/api/bills", billPaymentRoute); // Existing route for backward compatibility
@@ -205,6 +216,8 @@ app.use("/api/bills/enhanced", enhancedBillPaymentRoute); // New enhanced featur
 
 // Alternative mounting for enhanced features (optional)
 app.use("/api/v2/bills", enhancedBillPaymentRoute); // Version 2 API
+app.use("/api/gift-cards", giftCardRoute); // Gift card functionality
+app.use('/api/flights', flightRoutes);
 
 // Welcome route with authentication middleware
 app.get("/welcome", (req, res) => {
@@ -304,9 +317,47 @@ app.get('/api/docs', (req, res) => {
           "POST /fund - Fund wallet",
           "GET /transactions - Get wallet transactions"
         ]
-      }
+      },
+      giftCards: {
+        base: "/api/gift-cards",
+        description: "Digital gift card purchases via Reloadly API",
+        endpoints: [
+          "GET /countries - Get available countries",
+          "GET /products/:countryCode - Get products by country",
+          "GET /product/:productId - Get product details",
+          "POST /calculate-pricing - Calculate pricing in Naira",
+          "POST /purchase - Purchase gift card",
+          "GET /transaction/:transactionRef - Get transaction status",
+          "GET /history - Get purchase history",
+          "GET /details/:transactionRef - Get card details (sensitive)",
+          "GET /test-connection - Test Reloadly connection (admin)"
+        ],
+        supportedCountries: "200+ countries including US, UK, Canada, Germany, etc.",
+        supportedBrands: "Amazon, Google Play, iTunes, Steam, Netflix, Spotify, etc.",
+        paymentMethods: ["wallet"],
+        currencies: {
+          purchase: "USD (converted from NGN)",
+          billing: "NGN"
+        },
+        features: [
+          "Real-time exchange rates",
+          "Email delivery to recipients",
+          "Multiple gift cards per purchase",
+          "Personal messages for gifts",
+          "Transaction history and tracking",
+          "Automatic wallet refunds on failures"
+        ]
+      },
     },
     features: {
+      newInV2_1: [
+        "🎁 Digital Gift Card Purchases (200+ countries)",
+        "🔄 Real-time USD/NGN Exchange Rates",
+        "📧 Email Delivery to Recipients",
+        "🎯 Personal Messages for Gifts",
+        "🛡️ Secure Card Detail Storage",
+        "💰 Automatic Refunds on Failures"
+      ],
       newInV2: [
         "Sports Betting Integration",
         "Flight Booking System",
@@ -339,9 +390,37 @@ app.get('/api/docs', (req, res) => {
       enhancedFeatures: "Access via /api/bills/enhanced or /api/v2/bills"
     },
     support: {
-      email: "support@surepay.com",
+      email: "support@Surepay.com",
       documentation: "Visit /api/docs for full documentation",
       healthCheck: "Monitor service status at /health and /status"
+    },
+    giftCardGuide: {
+      quickStart: [
+        "1. GET /countries to see available countries",
+        "2. GET /products/{countryCode} to browse gift cards",
+        "3. POST /calculate-pricing to see costs in Naira",
+        "4. POST /purchase to buy gift card",
+        "5. GET /details/{transactionRef} to view card details"
+      ],
+      pricing: {
+        exchangeRate: "Dynamic USD to NGN conversion",
+        serviceCharge: "2.5% processing fee",
+        minimumPurchase: "$1 USD",
+        maximumPurchase: "$500 USD",
+        maximumQuantity: "10 cards per transaction"
+      },
+      delivery: {
+        method: "Email to recipient",
+        timeframe: "5-15 minutes",
+        includes: "Card number, PIN, instructions",
+        support: "24/7 customer support"
+      },
+      security: {
+        storage: "Encrypted card details",
+        access: "Purchaser only",
+        masking: "Partial masking in history",
+        fullDetails: "Available via /details endpoint"
+      }
     }
   });
 });
@@ -372,6 +451,21 @@ app.get('/api', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+
+// ==================== CRON JOB FOR CHAT CLEANUP ====================
+// This is a fallback to ensure chats are deleted.
+cron.schedule('0 2 * * *', async () => { // Runs every day at 2 AM
+  console.log('Running daily chat cleanup cron job...');
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  try {
+    const result = await Chat.deleteMany({ createdAt: { $lt: thirtyDaysAgo } });
+    console.log(`Chat cleanup successful. Deleted ${result.deletedCount} old chats.`);
+  } catch (error) {
+    console.error('Error during chat cleanup cron job:', error);
+  }
+});
+
 
 // ==================== ERROR HANDLING ====================
 
