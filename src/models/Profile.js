@@ -25,6 +25,20 @@ const profileSchema = new Schema(
         marriageAnniversary: { type: String },
         nextOfKin: { type: String, default: "" },
         nextOfKinContact: { type: String, default: "" },
+        // KYC Fields
+        kycStatus: {
+            type: String,
+            enum: ['pending', 'verified', 'rejected', 'unverified'],
+            default: 'unverified'
+        },
+        kycLevel: { type: Number, default: 0 },
+        kycDocuments: [{
+            type: { type: String }, // 'national_id', 'passport', etc.
+            url: { type: String },
+            status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+            uploadedAt: { type: Date, default: Date.now }
+        }],
+        kycRejectionReason: { type: String }
     },
     {
         collection: "demo_profiles",

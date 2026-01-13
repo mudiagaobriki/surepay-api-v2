@@ -27,6 +27,7 @@ import billPaymentRoute from "./src/routes/billPaymentRoutes.js";
 import enhancedBillPaymentRoute from "./src/routes/enhancedBillPaymentRoute.js";
 import giftCardRoute from "./src/routes/giftCardRoutes.js";
 import flightRoutes from './src/routes/flightBookingRoutes.js';
+import settingsRouter from './src/routes/settingsRoute.js';
 
 // Import enhanced middleware
 // import { rateLimitMiddleware, globalRateLimit } from "./src/middleware/rateLimit.js";
@@ -44,11 +45,11 @@ initSentry(app);
 // CORS configuration - Enhanced with additional headers for new services
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-      ? [
-        'https://yourdomain.com',
-        'https://www.yourdomain.com'
-      ]
-      : ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:19000'],
+    ? [
+      'https://yourdomain.com',
+      'https://www.yourdomain.com'
+    ]
+    : ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:19000'],
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -209,6 +210,7 @@ app.use("/api/wallet", walletRoute);
 app.use("/api/bet", betWalletFundingRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/sms", smsRoute);
+app.use("/api/settings", settingsRouter);
 
 // Enhanced bill payment routes with backward compatibility
 app.use("/api/bills", billPaymentRoute); // Existing route for backward compatibility

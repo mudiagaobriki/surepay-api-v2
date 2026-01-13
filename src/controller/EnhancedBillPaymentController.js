@@ -4,6 +4,7 @@ import SportsBet from '../models/SportsBet.js';
 import FlightBooking from '../models/FlightBooking.js';
 import InternationalAirtime from '../models/InternationalAirtime.js';
 import User from '../models/User.js';
+import Transaction from '../models/Transaction.js';
 import VTPassService from '../services/VTPassService.js';
 import SportsBettingService from '../services/SportsBettingService.js';
 import FlightBookingService from '../services/FlightBookingService.js';
@@ -1302,6 +1303,54 @@ function EnhancedBillPaymentController() {
         }
     };
 
+    /**
+     * Get all transaction history for admin
+     */
+    const getAdminEnhancedHistory = async (req, res) => {
+        try {
+            const { page = 1, limit = 15, q } = req.query;
+
+            // Build query
+            const query = {};
+
+            // If search query exists, search by reference or user email (this would require lookup)
+            if (q) {
+                query.$or = [
+                    { reference: { $regex: q, $options: 'i' } },
+                    { type: { $regex: q, $options: 'i' } },
+                    { status: { $regex: q, $options: 'i' } }
+                ];
+            }
+
+            const options = {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                sort: { createdAt: -1 },
+                populate: { path: 'user', select: 'firstName lastName email' }
+            };
+
+            const transactions = await Transaction.paginate(query, options);
+
+            res.status(200).json({
+                success: true,
+                docs: transactions.docs,
+                totalDocs: transactions.totalDocs,
+                limit: transactions.limit,
+                page: transactions.page,
+                totalPages: transactions.totalPages,
+                hasNextPage: transactions.hasNextPage,
+                hasPrevPage: transactions.hasPrevPage
+            });
+        } catch (error) {
+            console.error('Error fetching admin history:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Failed to fetch transaction history',
+                error: error.message
+            });
+        }
+    };
+
     // Return all methods including original ones and new ones
     return {
         // Original BillPaymentController methods
@@ -1330,7 +1379,8 @@ function EnhancedBillPaymentController() {
         getInternationalProductTypes,
 
         // Enhanced methods
-        getEnhancedPaymentHistory
+        getEnhancedPaymentHistory,
+        getAdminEnhancedHistory
     };
 }
 

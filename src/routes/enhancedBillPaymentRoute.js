@@ -56,7 +56,8 @@ const {
     getExchangeRates,
 
     // Enhanced methods
-    getEnhancedPaymentHistory
+    getEnhancedPaymentHistory,
+    getAdminEnhancedHistory
 } = EnhancedBillPaymentController();
 
 // ==================== PUBLIC ROUTES (No Authentication Required) ====================
@@ -243,6 +244,9 @@ router.get('/history', getPaymentHistory);
 
 // Enhanced payment history (includes all service types)
 router.get('/enhanced-history', getEnhancedPaymentHistory);
+
+// Admin enhanced history (view all transactions)
+router.get('/admin/enhanced-history', getAdminEnhancedHistory);
 
 // ==================== SPORTS BETTING ROUTES ====================
 
