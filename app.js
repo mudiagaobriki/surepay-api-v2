@@ -47,9 +47,10 @@ const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
     ? [
       'https://yourdomain.com',
-      'https://www.yourdomain.com'
+      'https://www.yourdomain.com',
+      'https://dee-admin.surepayapp.com',
     ]
-    : ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:19000'],
+    : ['http://localhost:3000', 'http://localhost:8081', 'http://localhost:19000', 'https://dee-admin.surepayapp.com'],
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
