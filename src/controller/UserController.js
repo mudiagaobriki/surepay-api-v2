@@ -2,14 +2,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import User from '../models/User.js';
-import {registerSchema, loginSchema, usernameExistsSchema} from '../validation/auth.js';
+import { registerSchema, loginSchema, usernameExistsSchema } from '../validation/auth.js';
 import {
   sendVerificationEmail,
   sendPasswordForgotEmail, sendForgotPasswordOTP
 } from '../../utils/emails/sendEmails.js';
-import {formatPhoneNumber,isPhoneNumber, getPhoneVariations, normalizePhoneNumber, capitalize, checkIfUserIsLoggedIn} from "../../utils/func.js";
+import { formatPhoneNumber, isPhoneNumber, getPhoneVariations, normalizePhoneNumber, capitalize, checkIfUserIsLoggedIn } from "../../utils/func.js";
 import { otpEmailService, generateOTP } from '../services/OtpEmailService.js';
-import {sendPasswordResetOTP} from "../services/EnhancedOtpService.js";
+import { sendPasswordResetOTP } from "../services/EnhancedOtpService.js";
 
 function UserController() {
   const register = async (req, res) => {
@@ -48,15 +48,20 @@ function UserController() {
       // );
 
       const loginToken = jwt.sign(
-          { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
-          process.env.JWT_SECRET,
-          { expiresIn: '2h' }
+        { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
+        process.env.JWT_SECRET,
+        { expiresIn: '2h' }
       );
 
       user.loginToken = loginToken;
       await user.save();
 
-      await sendVerificationEmail(email, user?._id, firstName);
+      try {
+        await sendVerificationEmail(email, user?._id, firstName);
+      } catch (emailError) {
+        console.error('Failed to send verification email:', emailError);
+        // Continue with registration success even if email fails
+      }
 
       const userResponse = user.toObject();
       delete userResponse.password;
@@ -68,6 +73,21 @@ function UserController() {
       });
     } catch (err) {
       console.error('Registration error:', err);
+
+      // Handle duplicate key error (E11000)
+      if (err.code === 11000 || (err.name === 'MongoError' && err.code === 11000)) {
+        if (err.keyPattern?.email) {
+          return res.status(409).json({ message: 'User with this email already exists.' });
+        }
+        if (err.keyPattern?.phone) {
+          return res.status(409).json({ message: 'User with this phone number already exists.' });
+        }
+        if (err.keyPattern?.username) {
+          return res.status(409).json({ message: 'User with this username already exists.' });
+        }
+        return res.status(409).json({ message: 'User with these details already exists.' });
+      }
+
       res.status(500).json({ message: 'An error occurred during registration. Please try again later.' });
     }
   };
@@ -203,9 +223,9 @@ function UserController() {
       // );
 
       const loginToken = jwt.sign(
-          { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
-          process.env.JWT_SECRET,
-          { expiresIn: '2h' }
+        { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
+        process.env.JWT_SECRET,
+        { expiresIn: '2h' }
       );
 
       // Update all login-related fields in memory
@@ -333,7 +353,7 @@ function UserController() {
 
       // Check if device is enrolled (optional, for enhanced security)
       const enrolledDevice = user.enrolledDevices?.find(device =>
-          device.deviceId === deviceId && device.isActive
+        device.deviceId === deviceId && device.isActive
       );
 
       if (!enrolledDevice && user.enrolledDevices?.length > 0) {
@@ -346,12 +366,12 @@ function UserController() {
 
       // Record successful biometric attempt (without saving)
       user.recordBiometricAttempt(
-          'signin',
-          biometricType,
-          true, // success
-          deviceId,
-          null, // no failure reason
-          req.ip
+        'signin',
+        biometricType,
+        true, // success
+        deviceId,
+        null, // no failure reason
+        req.ip
       );
 
       // Update device last used timestamp if enrolled
@@ -367,9 +387,9 @@ function UserController() {
       // );
 
       const loginToken = jwt.sign(
-          { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
-          process.env.JWT_SECRET,
-          { expiresIn: '2h' }
+        { user_id: user._id, email: user.email, type: user.type }, // <-- Add user type here
+        process.env.JWT_SECRET,
+        { expiresIn: '2h' }
       );
 
       // Set the login token
@@ -433,12 +453,12 @@ function UserController() {
           if (user) {
             // Record failed attempt and save in one operation
             user.recordBiometricAttempt(
-                'signin',
-                req.body?.biometricType || 'unknown',
-                false, // failure
-                req.body?.deviceId || 'unknown',
-                err.message,
-                req.ip
+              'signin',
+              req.body?.biometricType || 'unknown',
+              false, // failure
+              req.body?.deviceId || 'unknown',
+              err.message,
+              req.ip
             );
 
             // Save once with all changes
@@ -756,9 +776,9 @@ function UserController() {
       }
 
       const resetToken = jwt.sign(
-          { email: user.email, user_id: user._id },
-          process.env.JWT_SECRET,
-          { expiresIn: '1h' }
+        { email: user.email, user_id: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
       );
 
       await sendPasswordForgotEmail(user, resetToken);
@@ -783,9 +803,9 @@ function UserController() {
       let username = value?.username;
 
       // format the input in case a phone number was used, so it will be the right format
-      console.log({username1: username})
+      console.log({ username1: username })
       username = formatPhoneNumber(username);
-      console.log({username2: username})
+      console.log({ username2: username })
 
       let query = {};
       if (username) {
@@ -798,7 +818,7 @@ function UserController() {
         };
       }
 
-      console.log({query})
+      console.log({ query })
 
       const user = await User.findOne(query);
 
@@ -806,7 +826,7 @@ function UserController() {
         return res.status(401).json({ message: 'Invalid email or username or phone number.' });
       }
 
-      console.log({user})
+      console.log({ user })
 
       const otp = await sendForgotPasswordOTP(user?.email);
 
@@ -888,9 +908,9 @@ function UserController() {
 
       // Generate a reset token that will be used for the actual password reset
       const resetToken = jwt.sign(
-          { email: user.email, user_id: user._id },
-          process.env.JWT_SECRET,
-          { expiresIn: '30m' }
+        { email: user.email, user_id: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '30m' }
       );
 
       // Clear the OTP after successful verification
@@ -931,9 +951,9 @@ function UserController() {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = await User.findOneAndUpdate(
-          { email: decoded.email },
-          { password: hashedPassword },
-          { new: true }
+        { email: decoded.email },
+        { password: hashedPassword },
+        { new: true }
       );
 
       if (!user) {
@@ -1225,12 +1245,12 @@ function UserController() {
 
       // Find and update user to clear login token
       const user = await User.findOneAndUpdate(
-          { email: email },
-          {
-            loginToken: null,
-            lastActiveAt: new Date()
-          },
-          { new: true }
+        { email: email },
+        {
+          loginToken: null,
+          lastActiveAt: new Date()
+        },
+        { new: true }
       );
 
       if (!user) {
@@ -1315,7 +1335,7 @@ function UserController() {
         // Check if we have any fallback options
         const serviceStatus = getOTPServiceStatus();
         const availableChannels = Object.keys(serviceStatus).filter(channel =>
-            serviceStatus[channel].available && channel !== 'overall'
+          serviceStatus[channel].available && channel !== 'overall'
         );
 
         if (availableChannels.length === 0) {
@@ -1424,9 +1444,9 @@ function UserController() {
       await user.save();
 
       const resetToken = jwt.sign(
-          { email: user.email, user_id: user._id },
-          process.env.JWT_SECRET,
-          { expiresIn: '30m' }
+        { email: user.email, user_id: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '30m' }
       );
 
       res.status(200).json({
@@ -1506,7 +1526,7 @@ function UserController() {
 
         const serviceStatus = getOTPServiceStatus();
         const availableChannels = Object.keys(serviceStatus).filter(channel =>
-            serviceStatus[channel].available && channel !== 'overall'
+          serviceStatus[channel].available && channel !== 'overall'
         );
 
         if (availableChannels.length === 0) {
